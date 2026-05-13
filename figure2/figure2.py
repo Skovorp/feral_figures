@@ -80,8 +80,9 @@ def panel_a(ax_photo, ax_legend):
                    va="center", ha="left")
 
     # 2x2 layout: top row (no label / mount), bottom row (attack / investigate)
-    # Dots are not perfect circles — use small ellipses via Circle with
-    # equal_aspect=False to match the slightly squashed look of the source.
+    # Dots use `scatter` (size in points²) so they render as true circles
+    # regardless of the axes aspect — matplotlib's Circle patch with mixed
+    # data ranges would squish.
     entries = [
         (0.08, 0.55, COLORS["no_label"],    "no label"),
         (0.48, 0.55, COLORS["mount"],       "mount"),
@@ -89,8 +90,7 @@ def panel_a(ax_photo, ax_legend):
         (0.48, 0.27, COLORS["investigate"], "investigate"),
     ]
     for x, y, c, lbl in entries:
-        ax_legend.add_patch(patches.Circle((x, y), 0.05, facecolor=c,
-                                           edgecolor="none"))
+        ax_legend.scatter([x], [y], s=120, c=c, edgecolors="none", zorder=3)
         ax_legend.text(x + 0.08, y, lbl, fontsize=9, va="center", ha="left")
 
 

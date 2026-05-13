@@ -17,14 +17,23 @@ from __future__ import annotations
 import os
 import matplotlib.pyplot as plt
 
-from figure2 import (
+import sys
+HERE_ = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(HERE_))
+sys.path.insert(0, HERE_)
+
+# IMPORTANT: silence the in-panel letter (a/b/c/...) before importing the
+# panel functions. Letters are drawn by the HTML composition layer
+# (figure2.html) so they can't be clipped at SVG edges.
+import _style  # noqa: E402
+_style.panel_label = lambda *a, **kw: None
+
+from figure2 import (                                               # noqa: E402
     HERE, load_data,
     panel_a, panel_b, panel_c, panel_d,
     panel_e, panel_f, panel_g, panel_h,
 )
-import sys
-sys.path.insert(0, os.path.dirname(HERE))
-from _style import apply_rcparams  # noqa: E402
+from _style import apply_rcparams                                   # noqa: E402
 
 PANELS_DIR = os.path.join(HERE, "panels")
 os.makedirs(PANELS_DIR, exist_ok=True)
@@ -98,7 +107,9 @@ def render_b():
 def render_c():
     fig = _new_fig("c")
     data = load_data()
-    ax = fig.add_axes([0.27, 0.27, 0.70, 0.62])
+    # Bottom margin is generous: rotated x-tick labels + italic citation
+    # subtext need ~30% of the height.
+    ax = fig.add_axes([0.27, 0.32, 0.70, 0.58])
     panel_c(ax, data)
     return _save_svg(fig, "c")
 
@@ -114,10 +125,12 @@ def render_d():
 def render_e():
     fig = _new_fig("e")
     data = load_data()
-    # Colorbar on top, matrix below.
+    # Colorbar on top with room for its "misclassified frames" label.
+    # `top=0.82` leaves ~18% of the SVG height above the colorbar — enough
+    # for the label + tick numbers without clipping.
     gs = fig.add_gridspec(
-        2, 1, height_ratios=[0.06, 1.0], hspace=0.25,
-        left=0.20, right=0.97, top=0.92, bottom=0.18,
+        2, 1, height_ratios=[0.06, 1.0], hspace=0.30,
+        left=0.20, right=0.97, top=0.82, bottom=0.18,
     )
     cax = fig.add_subplot(gs[0])
     ax = fig.add_subplot(gs[1])
@@ -135,7 +148,9 @@ def render_f():
 
 def render_g():
     fig = _new_fig("g")
-    ax = fig.add_axes([0.16, 0.20, 0.81, 0.55])
+    # Top axis "labelled data duration (mins)" needs ~25% of height,
+    # bottom "% training data" + legend needs ~25%.
+    ax = fig.add_axes([0.16, 0.25, 0.81, 0.50])
     panel_g(ax)
     return _save_svg(fig, "g")
 
