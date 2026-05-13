@@ -98,7 +98,7 @@ def panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig):
             p for p in fig.patches
             if getattr(p, "_fig5_panel_a_dot", False) is False
         ]
-        renderer = fig.canvas.get_renderer()
+        renderer = getattr(event, "renderer", None) or fig.canvas.get_renderer()
         for dot_ax, img_ax in [(ax_top_dot, ax_top_img),
                                (ax_bot_dot, ax_bot_img)]:
             color = getattr(dot_ax, "_dot_color")
@@ -161,7 +161,7 @@ def panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig):
             p for p in fig.patches
             if getattr(p, "_fig5_panel_a_box", False) is False
         ]
-        renderer = fig.canvas.get_renderer()
+        renderer = getattr(event, "renderer", None) or fig.canvas.get_renderer()
         for ax in (ax_top_img, ax_bot_img):
             if not ax.images:
                 continue
@@ -245,7 +245,7 @@ def panel_b(ax_title, ax_lbl, ax_pred, data, ax_frames=None, fig=None):
 
     if fig is not None:
         def _place_bold(event):
-            renderer = fig.canvas.get_renderer()
+            renderer = getattr(event, "renderer", None) or fig.canvas.get_renderer()
             bb = t1.get_window_extent(renderer=renderer)
             bb_ax = bb.transformed(ax_title.transAxes.inverted())
             bold_text.set_x(bb_ax.x1)
@@ -349,7 +349,7 @@ def panel_c(ax_left_img, ax_cm, ax_cbar, ax_right_img, data, fig):
     # axis (which was placed in the next gridspec column) is otherwise too far
     # to the right.
     def _tuck_cbar(event):
-        renderer = fig.canvas.get_renderer()
+        renderer = getattr(event, "renderer", None) or fig.canvas.get_renderer()
         if not ax_cm.images:
             return
         cm_ext = ax_cm.images[0].get_window_extent(renderer)
