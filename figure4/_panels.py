@@ -59,8 +59,15 @@ def _new_fig(name: str) -> plt.Figure:
 
 
 def _save_svg(fig: plt.Figure, name: str) -> str:
-    """Save SVG with NO cropping — see `figures/_render.save_svg`."""
-    return save_svg(fig, os.path.join(PANELS_DIR, f"{name}.svg"))
+    """Save SVG with NO cropping — see `figures/_render.save_svg`.
+
+    `pad_inches=0.20` (larger than the default 0.10) because figure 4
+    panels are scaled into smallish CSS slots; the extra in-SVG padding
+    becomes scaled visual breathing room and keeps the top-most tick
+    label (e.g. panel d's "17500") from touching the slot edge.
+    """
+    return save_svg(fig, os.path.join(PANELS_DIR, f"{name}.svg"),
+                    pad_inches=0.20)
 
 
 # ---------------------------------------------------------------------------
