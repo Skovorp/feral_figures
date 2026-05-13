@@ -41,7 +41,7 @@ os.makedirs(PANELS_DIR, exist_ok=True)
 
 # Panel sizes (CSS pixels at 96 DPI). Tweak here, not in HTML.
 SIZES = {
-    "a": (225, 300),
+    "a": (225, 175),     # just the cage photo (legend is HTML)
     "b": (555, 260),
     "c": (200, 260),
     "d": (290, 260),
@@ -69,12 +69,10 @@ def _save_svg(fig: plt.Figure, name: str) -> str:
 
 # ---------------------------------------------------------------------------
 def render_a():
+    """Just the cage photo — the legend box is composed in HTML."""
     fig = _new_fig("a")
-    gs = fig.add_gridspec(
-        2, 1, height_ratios=[1.25, 1.0], hspace=0.20,
-        left=0.04, right=0.98, top=0.92, bottom=0.04,
-    )
-    panel_a(fig.add_subplot(gs[0]), fig.add_subplot(gs[1]))
+    ax = fig.add_axes([0.04, 0.04, 0.94, 0.92])
+    panel_a(ax, ax_legend=None)
     return _save_svg(fig, "a")
 
 

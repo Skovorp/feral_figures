@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Figure 4 — zebras + monkeys</title>
+  <style>
+    html, body { margin: 0; padding: 0; }
+    body {
+      width: 830px;
+      height: 1140px;
+      background: white;
+      font-family: Arial, sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel { position: absolute; }
+    .panel img { display: block; width: 100%; height: 100%; }
+
+    .letter {
+      position: absolute;
+      top: 0;
+      left: 2px;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      font-size: 16px;
+      color: #000;
+      z-index: 10;
+      line-height: 1;
+    }
+
+    /* --- Layout grid ---------------------------------------------------
+       TOP HALF (zebra), y = 0..620:
+         left column (a/c/d):  x = 0..340
+         right column (b):     x = 340..830
+       e (3x3 monkey grid):    spans right column lower portion + bottom
+       BOTTOM HALF (monkey), y = 620..1140:
+         f full width
+         g (left) + h (right)
+       ------------------------------------------------------------------- */
+
+    /* zebra section */
+    #a { left:   0px; top:   0px; width: 340px; height: 200px; }
+    #b { left: 340px; top:   0px; width: 490px; height: 220px; }
+    #c { left:   0px; top: 200px; width: 340px; height: 200px; }
+    #d { left:   0px; top: 400px; width: 340px; height: 220px; }
+    #e { left: 340px; top: 220px; width: 490px; height: 380px; }
+
+    /* monkey section */
+    #f { left:   0px; top: 620px; width: 820px; height: 200px; }
+    #g { left:   0px; top: 830px; width: 490px; height: 220px; }
+    #h { left: 510px; top: 830px; width: 310px; height: 220px; }
+  </style>
+</head>
+<body>
+  <div class="panel" id="a"><div class="letter">a</div><img src="panels/a.svg" alt="a"></div>
+  <div class="panel" id="b"><div class="letter">b</div><img src="panels/b.svg" alt="b"></div>
+  <div class="panel" id="c"><div class="letter">c</div><img src="panels/c.svg" alt="c"></div>
+  <div class="panel" id="d"><div class="letter">d</div><img src="panels/d.svg" alt="d"></div>
+  <div class="panel" id="e"><div class="letter">e</div><img src="panels/e.svg" alt="e"></div>
+  <div class="panel" id="f"><div class="letter">f</div><img src="panels/f.svg" alt="f"></div>
+  <div class="panel" id="g"><div class="letter">g</div><img src="panels/g.svg" alt="g"></div>
+  <div class="panel" id="h"><div class="letter">h</div><img src="panels/h.svg" alt="h"></div>
+
+  <div id="overflow-report" style="display:none;"></div>
+  <script>
+    (function checkOverflow() {
+      const body = document.body;
+      const bw = body.clientWidth;
+      const bh = body.clientHeight;
+      const issues = [];
+      if (body.scrollWidth  > bw) issues.push(`body overflow horizontally: ${body.scrollWidth - bw}px`);
+      if (body.scrollHeight > bh) issues.push(`body overflow vertically: ${body.scrollHeight - bh}px`);
+      document.querySelectorAll('.panel').forEach(p => {
+        const r = p.getBoundingClientRect();
+        if (r.right  > bw + 0.5) issues.push(`#${p.id}: right edge overflows by ${(r.right  - bw ).toFixed(1)}px`);
+        if (r.bottom > bh + 0.5) issues.push(`#${p.id}: bottom edge overflows by ${(r.bottom - bh).toFixed(1)}px`);
+        if (r.left   < -0.5)     issues.push(`#${p.id}: left edge negative by ${(-r.left).toFixed(1)}px`);
+        if (r.top    < -0.5)     issues.push(`#${p.id}: top edge negative by ${(-r.top).toFixed(1)}px`);
+      });
+      const rep = document.getElementById('overflow-report');
+      rep.textContent = issues.length ? 'OVERFLOW_FOUND ' + issues.join(' | ') : 'OVERFLOW_OK';
+      rep.style.display = 'block';
+      rep.style.position = 'fixed';
+      rep.style.left = '-9999px';
+    })();
+  </script>
+</body>
+</html>

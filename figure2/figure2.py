@@ -49,12 +49,15 @@ def load_data():
 
 
 # ---------------------------------------------------------------------------
-def panel_a(ax_photo, ax_legend):
-    """Mouse cage photo + behavior-labels legend box.
+def panel_a(ax_photo, ax_legend=None):
+    """Mouse cage photo + (optionally) behavior-labels legend box.
 
     The cage asset is 720x400 (aspect 1.8). We use aspect="equal" so the
     image is rendered at its native aspect ratio (no squish) — any extra
     space inside the gridspec slot becomes whitespace around the photo.
+
+    When ax_legend is None, only the photo is drawn — the legend is
+    composed in HTML (see figure2.html).
     """
     img = mpimg.imread(os.path.join(HERE, "assets", "mouse_cage.png"))
     ax_photo.imshow(img, aspect="equal")
@@ -62,6 +65,9 @@ def panel_a(ax_photo, ax_legend):
     for s in ax_photo.spines.values():
         s.set_visible(False)
     panel_label(ax_photo, "a", x=-0.08, y=1.02, fontsize=15)
+
+    if ax_legend is None:
+        return
 
     # Legend box
     ax_legend.set_xlim(0, 1); ax_legend.set_ylim(0, 1)
@@ -210,22 +216,27 @@ def panel_c(ax, data):
                 color=COLORS["feral"] if xi == 0 else "black")
 
     # Rotated labels (30°), anchored at the right edge so they fan
-    # diagonally below their bar. Italic citation rendered parallel
-    # below each main label.
+    # diagonally below their bar. Italic citation is rendered as a
+    # SECOND line of the same annotation (newline separated) so the
+    # citation stays parallel to its label and can't overlap the next
+    # bar's main label.
     label_colors = [COLORS["feral"], "black", "black", "black"]
     trans = ax.get_xaxis_transform()
     for xi, lbl, sub, col in zip(x, labels, sublabels, label_colors):
-        ax.annotate(lbl, xy=(xi + 0.25, 0), xycoords=trans,
-                    xytext=(0, -4), textcoords="offset points",
+        ax.annotate(lbl, xy=(xi + 0.30, 0), xycoords=trans,
+                    xytext=(0, -3), textcoords="offset points",
                     ha="right", va="top", rotation=30,
                     rotation_mode="anchor",
-                    fontsize=9, color=col, annotation_clip=False)
+                    fontsize=8, color=col, annotation_clip=False)
         if sub:
-            ax.annotate(sub, xy=(xi + 0.25, 0), xycoords=trans,
-                        xytext=(-10, -18), textcoords="offset points",
+            # Offset further along the rotated label's perpendicular so the
+            # citation sits a clear line below the main label without
+            # poking into the previous bar's text region.
+            ax.annotate(sub, xy=(xi + 0.30, 0), xycoords=trans,
+                        xytext=(-7, -16), textcoords="offset points",
                         ha="right", va="top", rotation=30,
                         rotation_mode="anchor",
-                        fontsize=6.5, fontstyle="italic",
+                        fontsize=6, fontstyle="italic",
                         annotation_clip=False)
 
     ax.tick_params(axis="x", length=0, pad=2)
@@ -244,10 +255,10 @@ def panel_d(ax, data):
     n = len(pct_correct)
 
     x = np.arange(n)
-    # Bars touch — no gap between them, like the source.
-    ax.bar(x, pct_correct, color=COLORS["correct"], width=1.0, linewidth=0)
+    # Slight gap between bars so individual videos read as separate units.
+    ax.bar(x, pct_correct, color=COLORS["correct"], width=0.85, linewidth=0)
     errs = [100 - c for c in pct_correct]
-    ax.bar(x, errs, bottom=pct_correct, color=COLORS["error"], width=1.0, linewidth=0)
+    ax.bar(x, errs, bottom=pct_correct, color=COLORS["error"], width=0.85, linewidth=0)
 
     ax.set_ylim(0, 100)
     ax.set_yticks([0, 25, 50, 75, 100])
@@ -387,7 +398,9 @@ def panel_f(ax, data):
                        fontstyle="italic")
     for tl, b in zip(ax.get_xticklabels(), behaviors):
         tl.set_color(CLASS_COLORS[b])
-    ax.set_ylim(0, 10)
+    # Push the bottom slightly below 0 so the y=0 tick label sits above the
+    # axis line (matches source typography).
+    ax.set_ylim(-0.4, 10)
     ax.set_yticks([0, 2, 4, 6, 8, 10])
     ax.set_ylabel("frames (thousands)", fontsize=10)
     ax.yaxis.grid(True, linestyle="--", linewidth=0.5,
@@ -420,14 +433,17 @@ def panel_g(ax):
                   color=COLORS["grid"], alpha=0.8)
     ax.set_axisbelow(True)
 
-    ax.plot(pct, maps, "o-", color="black", linewidth=1.2, markersize=5,
+    # Categorical x positions (even spacing). The source uses even spacing
+    # too — log spacing pushed the 1→5 gap too wide and made the rise look
+    # gentler than it does in the paper.
+    x_idx = np.arange(len(pct))
+    ax.plot(x_idx, maps, "o-", color="black", linewidth=1.2, markersize=5,
             zorder=5)
     ax.axhline(videoprism, color=COLORS["feral"], linestyle="--",
                linewidth=1.0, zorder=4)
 
-    ax.set_xscale("log")
-    ax.set_xlim(0.9, 60)
-    ax.set_xticks(pct)
+    ax.set_xlim(-0.3, len(pct) - 0.7)
+    ax.set_xticks(x_idx)
     ax.set_xticklabels([str(int(p)) for p in pct], fontsize=9)
     ax.minorticks_off()
     ax.set_xlabel("% training data used", fontsize=10)
@@ -437,13 +453,11 @@ def panel_g(ax):
     ax.set_ylabel("mAP (%)", fontsize=10)
     ax.tick_params(axis="y", labelsize=9)
 
-    # Top axis: labelled-data duration. Source rotates labels ~45° anchored
-    # at lower-left of each label so they fan up-right above each tick.
+    # Top axis: labelled-data duration. Even-spaced so its ticks align with
+    # the bottom axis (one duration per training-data %).
     secax = ax.twiny()
-    secax.set_xscale("log")
     secax.set_xlim(ax.get_xlim())
-    secax.set_xticks(pct)
-    # Format: "5.5" keeps decimal, rest are integers (matches source).
+    secax.set_xticks(x_idx)
     def _fmt(m):
         return f"{m:g}"
     secax.set_xticklabels([_fmt(m) for m in mins], rotation=45, ha="left",

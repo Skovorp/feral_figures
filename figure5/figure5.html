@@ -19,11 +19,12 @@
     }
     .panel img { display: block; width: 100%; height: 100%; }
 
-    /* Panel-letter overlays drawn on top of the SVGs */
+    /* Panel-letter overlays — inside-panel positioning so they can't be
+       clipped by the body's overflow:hidden when a panel sits at (0,0). */
     .letter {
       position: absolute;
-      top: -2px;
-      left: -2px;
+      top: 0;
+      left: 2px;
       font-family: Arial, sans-serif;
       font-weight: bold;
       font-size: 16px;

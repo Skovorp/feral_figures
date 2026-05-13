@@ -4,9 +4,6 @@
   <meta charset="utf-8">
   <title>Figure 2 — CalMS21 mice</title>
   <style>
-    /* The page is the figure canvas. 1 CSS px = 1 device px at scale 1.
-       build.py rescales the final raster with --force-device-scale-factor.
-       To move a panel: edit the #x rules below. */
     html, body { margin: 0; padding: 0; }
     body {
       width: 780px;
@@ -19,16 +16,18 @@
 
     .panel {
       position: absolute;
-      /* outline: 1px dashed rgba(255,0,0,.25); */ /* turn on for debug */
+      /* outline: 1px dashed rgba(255,0,0,.25); */
     }
     .panel img { display: block; width: 100%; height: 100%; }
 
-    /* Panel letter overlays — drawn on top of each panel SVG so they can't
-       be clipped at SVG edges. Edit `.letter`'s font-size to resize. */
+    /* Panel-letter overlays — drawn on top of each panel SVG so they
+       can't be clipped by the SVG's tight bbox. Positioned inside the
+       panel (top:0 left:2px) so they stay within body bounds when the
+       panel itself sits at body (0,0). */
     .letter {
       position: absolute;
-      top: -2px;
-      left: -2px;
+      top: 0;
+      left: 2px;
       font-family: Arial, sans-serif;
       font-weight: bold;
       font-size: 16px;
@@ -37,12 +36,48 @@
       line-height: 1;
     }
 
+    /* --- Behavior-labels legend (HTML, replaces the matplotlib version) -- */
+    #legend {
+      position: absolute;
+      left: 12px;
+      top: 195px;
+      width: 200px;
+      height: 100px;
+      border: 1px solid #1A1A1A;
+      border-radius: 12px;
+      padding: 8px 12px 10px 12px;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      line-height: 1.1;
+      background: white;
+    }
+    #legend .title {
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+    #legend .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 4px;
+      align-items: center;
+    }
+    #legend .entry { display: flex; align-items: center; gap: 6px; }
+    #legend .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
     /* --- Layout grid ---------------------------------------------------
-       Row 1 (y=0..300):    a [0..225]    b [225..780]
+       Row 1 (y=0..300):    a(photo) [0..225]            b [225..780]
+                            legend   [12..212, y=195..295]   (overlay in row1)
        Row 2 (y=310..580):  c [0..200]    d [200..490]   e [490..780]
        Row 3 (y=585..820):  f [0..255]    g [255..555]   h [580..780]
        ------------------------------------------------------------------- */
-    #a { left:   0px; top:   0px; width: 225px; height: 300px; }
+    #a { left:   0px; top:   0px; width: 225px; height: 175px; }
     #b { left: 225px; top:   0px; width: 555px; height: 260px; }
 
     #c { left:   0px; top: 310px; width: 200px; height: 260px; }
@@ -55,29 +90,38 @@
   </style>
 </head>
 <body>
-  <div class="panel" id="a"><div class="letter">a</div><img src="panels/a.svg" alt="panel a"></div>
-  <div class="panel" id="b"><div class="letter">b</div><img src="panels/b.svg" alt="panel b"></div>
-  <div class="panel" id="c"><div class="letter">c</div><img src="panels/c.svg" alt="panel c"></div>
-  <div class="panel" id="d"><div class="letter">d</div><img src="panels/d.svg" alt="panel d"></div>
-  <div class="panel" id="e"><div class="letter">e</div><img src="panels/e.svg" alt="panel e"></div>
-  <div class="panel" id="f"><div class="letter">f</div><img src="panels/f.svg" alt="panel f"></div>
-  <div class="panel" id="g"><div class="letter">g</div><img src="panels/g.svg" alt="panel g"></div>
-  <div class="panel" id="h"><div class="letter">h</div><img src="panels/h.svg" alt="panel h"></div>
+  <div class="panel" id="a"><div class="letter">a</div><img src="panels/a.svg" alt="a"></div>
 
-  <!-- Overflow report — read by build.py via Chrome's --dump-dom.
-       Populated by the script below; build.py looks for any text inside. -->
-  <div id="overflow-report" style="display: none;"></div>
+  <!-- Behavior-labels legend (HTML, not matplotlib) -->
+  <div id="legend">
+    <div class="title">behavior labels</div>
+    <div class="grid">
+      <div class="entry"><span class="dot" style="background:#5A5A5A"></span>no label</div>
+      <div class="entry"><span class="dot" style="background:#83C2DD"></span>mount</div>
+      <div class="entry"><span class="dot" style="background:#E66B3D"></span>attack</div>
+      <div class="entry"><span class="dot" style="background:#3E9863"></span>investigate</div>
+    </div>
+  </div>
+
+  <div class="panel" id="b"><div class="letter">b</div><img src="panels/b.svg" alt="b"></div>
+  <div class="panel" id="c"><div class="letter">c</div><img src="panels/c.svg" alt="c"></div>
+  <div class="panel" id="d"><div class="letter">d</div><img src="panels/d.svg" alt="d"></div>
+  <div class="panel" id="e"><div class="letter">e</div><img src="panels/e.svg" alt="e"></div>
+  <div class="panel" id="f"><div class="letter">f</div><img src="panels/f.svg" alt="f"></div>
+  <div class="panel" id="g"><div class="letter">g</div><img src="panels/g.svg" alt="g"></div>
+  <div class="panel" id="h"><div class="letter">h</div><img src="panels/h.svg" alt="h"></div>
+
+  <div id="overflow-report" style="display:none;"></div>
   <script>
     (function checkOverflow() {
       const body = document.body;
       const bw = body.clientWidth;
       const bh = body.clientHeight;
       const issues = [];
-      // 1) Page-level overflow
-      if (body.scrollWidth > bw)  issues.push(`body overflow horizontally: ${body.scrollWidth - bw}px`);
+      if (body.scrollWidth  > bw) issues.push(`body overflow horizontally: ${body.scrollWidth - bw}px`);
       if (body.scrollHeight > bh) issues.push(`body overflow vertically: ${body.scrollHeight - bh}px`);
-      // 2) Per-panel overflow (any panel whose bounding rect leaves the body)
-      document.querySelectorAll('.panel').forEach(p => {
+      // Check every absolutely-positioned element (panels + legend).
+      document.querySelectorAll('.panel, #legend').forEach(p => {
         const r = p.getBoundingClientRect();
         if (r.right  > bw + 0.5) issues.push(`#${p.id}: right edge overflows by ${(r.right  - bw ).toFixed(1)}px`);
         if (r.bottom > bh + 0.5) issues.push(`#${p.id}: bottom edge overflows by ${(r.bottom - bh).toFixed(1)}px`);
@@ -85,12 +129,10 @@
         if (r.top    < -0.5)     issues.push(`#${p.id}: top edge negative by ${(-r.top).toFixed(1)}px`);
       });
       const rep = document.getElementById('overflow-report');
-      rep.textContent = issues.length
-        ? 'OVERFLOW_FOUND ' + issues.join(' | ')
-        : 'OVERFLOW_OK';
+      rep.textContent = issues.length ? 'OVERFLOW_FOUND ' + issues.join(' | ') : 'OVERFLOW_OK';
       rep.style.display = 'block';
       rep.style.position = 'fixed';
-      rep.style.left = '-9999px';   // off-screen, but DOM-readable
+      rep.style.left = '-9999px';
     })();
   </script>
 </body>
