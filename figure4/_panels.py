@@ -26,6 +26,7 @@ from figure4 import (                                               # noqa: E402
     panel_e, panel_f, panel_g, panel_h,
 )
 from _style import apply_rcparams                                   # noqa: E402
+from _render import save_svg                                        # noqa: E402
 
 PANELS_DIR = os.path.join(HERE, "panels")
 os.makedirs(PANELS_DIR, exist_ok=True)
@@ -51,13 +52,8 @@ def _new_fig(name: str) -> plt.Figure:
 
 
 def _save_svg(fig: plt.Figure, name: str) -> str:
-    """bbox_inches='tight' so labels/titles outside axes bounds aren't
-    clipped by the SVG canvas. CSS uses object-fit:contain to scale."""
-    out = os.path.join(PANELS_DIR, f"{name}.svg")
-    fig.savefig(out, format="svg", bbox_inches="tight", pad_inches=0.02,
-                facecolor="white")
-    plt.close(fig)
-    return out
+    """Save SVG with NO cropping — see `figures/_render.save_svg`."""
+    return save_svg(fig, os.path.join(PANELS_DIR, f"{name}.svg"))
 
 
 # ---------------------------------------------------------------------------

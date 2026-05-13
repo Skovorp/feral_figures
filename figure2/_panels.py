@@ -34,6 +34,7 @@ from figure2 import (                                               # noqa: E402
     panel_e, panel_f, panel_g, panel_h,
 )
 from _style import apply_rcparams                                   # noqa: E402
+from _render import save_svg                                        # noqa: E402
 
 PANELS_DIR = os.path.join(HERE, "panels")
 os.makedirs(PANELS_DIR, exist_ok=True)
@@ -60,18 +61,8 @@ def _new_fig(name: str) -> plt.Figure:
 
 
 def _save_svg(fig: plt.Figure, name: str) -> str:
-    """Save SVG with bbox_inches='tight' so matplotlib auto-expands the
-    canvas to include EVERY artist (panel labels, rotated tick text,
-    citations, etc.) — nothing gets clipped at the SVG edge.
-
-    The HTML side uses `object-fit: contain` on the <img> so the SVG
-    keeps its aspect ratio when scaled to the CSS slot.
-    """
-    out = os.path.join(PANELS_DIR, f"{name}.svg")
-    fig.savefig(out, format="svg", bbox_inches="tight", pad_inches=0.02,
-                facecolor="white")
-    plt.close(fig)
-    return out
+    """Save SVG with NO cropping — see `figures/_render.save_svg`."""
+    return save_svg(fig, os.path.join(PANELS_DIR, f"{name}.svg"))
 
 
 # ---------------------------------------------------------------------------
