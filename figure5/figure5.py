@@ -141,7 +141,7 @@ def panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig):
     for ax, fn in [(ax_top_img, "petri_no_raiding.png"),
                    (ax_bot_img, "petri_raiding.png")]:
         img = mpimg.imread(os.path.join(HERE, "assets", fn))
-        ax.imshow(img, aspect="auto")
+        ax.imshow(img, aspect="equal")
         _hide_spines(ax)
 
     # Draw rounded gray boxes around each image after first draw (so we know
@@ -542,19 +542,21 @@ def main(out=None):
     # Master 3-row gridspec
     gs = fig.add_gridspec(
         3, 1,
-        height_ratios=[0.85, 0.90, 1.55],
-        hspace=0.50,
+        height_ratios=[1.30, 0.90, 1.55],
+        hspace=0.55,
         left=0.08, right=0.97, top=0.96, bottom=0.15,
     )
 
     # ---- Row 1: panel a (left), panel b (right) ----
-    row1 = gs[0].subgridspec(1, 2, width_ratios=[1.0, 2.5], wspace=0.22)
+    row1 = gs[0].subgridspec(1, 2, width_ratios=[1.0, 2.7], wspace=0.30)
 
-    # Panel a: two stacked (dot-header + image) rows
+    # Panel a: two stacked (dot-header + image) rows.
+    # Image rows need enough height so the 2:1 wide petri photos render at
+    # natural aspect inside the rounded gray boxes (matches source look).
     a_sub = row1[0].subgridspec(
         4, 1,
-        height_ratios=[0.40, 1.0, 0.40, 1.0],
-        hspace=0.45,
+        height_ratios=[0.20, 1.0, 0.20, 1.0],
+        hspace=0.50,
     )
     ax_a_top_dot = fig.add_subplot(a_sub[0])
     ax_a_top_img = fig.add_subplot(a_sub[1])
