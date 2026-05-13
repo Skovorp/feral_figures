@@ -588,21 +588,21 @@ def main(out=None):
     # Master 3-row gridspec
     gs = fig.add_gridspec(
         3, 1,
-        height_ratios=[1.85, 1.20, 1.55],
-        hspace=0.42,
+        height_ratios=[1.95, 1.25, 1.45],
+        hspace=0.30,
         left=0.08, right=0.97, top=0.96, bottom=0.14,
     )
 
     # ---- Row 1: panel a (left), panel b (right) ----
-    row1 = gs[0].subgridspec(1, 2, width_ratios=[1.0, 1.95], wspace=0.25)
+    row1 = gs[0].subgridspec(1, 2, width_ratios=[1.15, 1.85], wspace=0.18)
 
     # Panel a: two stacked (dot-header + image) rows.
     # Image rows need enough height so the 2:1 wide petri photos render at
     # natural aspect inside the rounded gray boxes (matches source look).
     a_sub = row1[0].subgridspec(
         4, 1,
-        height_ratios=[0.22, 1.0, 0.25, 1.0],
-        hspace=0.20,
+        height_ratios=[0.16, 1.0, 0.18, 1.0],
+        hspace=0.10,
     )
     ax_a_top_dot = fig.add_subplot(a_sub[0])
     ax_a_top_img = fig.add_subplot(a_sub[1])
@@ -624,11 +624,12 @@ def main(out=None):
 
     # ---- Row 2: panel c (left thumb | matrix | cbar | right thumb) ----
     # Want the colorbar to sit RIGHT NEXT TO the matrix (tight), with the
-    # right thumbnail separated by a larger gap.
+    # right thumbnail separated by a larger gap. Thumbnails are pushed wider
+    # so they hug the figure edges (matches source).
     row2 = gs[1].subgridspec(
         1, 4,
-        width_ratios=[0.80, 1.55, 0.08, 0.80],
-        wspace=0.18,
+        width_ratios=[1.00, 1.40, 0.07, 1.00],
+        wspace=0.15,
     )
     ax_c_left  = fig.add_subplot(row2[0])
     ax_c_cm    = fig.add_subplot(row2[1])

@@ -251,7 +251,7 @@ def panel_c(ax, data):
 # ---------------------------------------------------------------------------
 def panel_d(ax, data):
     """Paired boxplots vigilant / out_of_sight, gt vs predicted (frames)."""
-    panel_label(ax, "d", x=-0.32, y=1.05, fontsize=12)
+    panel_label(ax, "d", x=-0.18, y=1.05, fontsize=12)
 
     behaviors = [2, 1]  # vigilant (label idx 2), out_of_sight (idx 1)
     display = {2: "vigilant", 1: "out of sight"}
@@ -589,9 +589,9 @@ def main(out=None):
     #   TOP: two-column grid — LEFT [a, c, d] stacked; RIGHT [b, e] stacked
     #   BOTTOM: three rows stacked — f (full width), g (full width), h (full width)
     outer = fig.add_gridspec(
-        2, 1, hspace=0.12,
+        2, 1, hspace=0.10,
         height_ratios=[1.60, 1.55],
-        left=0.075, right=0.96, top=0.975, bottom=0.030,
+        left=0.075, right=0.935, top=0.975, bottom=0.030,
     )
 
     # ============================================================
@@ -599,12 +599,12 @@ def main(out=None):
     # Two columns: LEFT [a, c, d], RIGHT [b, e]
     # ============================================================
     top = outer[0].subgridspec(
-        1, 2, width_ratios=[1.0, 1.55], wspace=0.32,
+        1, 2, width_ratios=[1.05, 1.45], wspace=0.22,
     )
 
     # --- LEFT column: a (top, thumbnails) / c (middle, bar) / d (bottom, box) ---
     left = top[0].subgridspec(
-        3, 1, height_ratios=[0.85, 1.00, 1.10], hspace=0.65,
+        3, 1, height_ratios=[0.95, 1.00, 1.05], hspace=0.45,
     )
 
     # Panel a: legend dots row + thumbnails row (one axes per thumbnail
@@ -623,13 +623,13 @@ def main(out=None):
 
     # --- RIGHT column: b (top, two ethogram videos) / e (bottom, behavior grid) ---
     right = top[1].subgridspec(
-        2, 1, height_ratios=[0.85, 2.10], hspace=0.30,
+        2, 1, height_ratios=[0.85, 2.10], hspace=0.18,
     )
 
     b_sub = right[0].subgridspec(
         8, 1,
-        height_ratios=[0.28, 0.42, 0.42, 0.22, 0.55, 0.42, 0.42, 0.22],
-        hspace=0.40,
+        height_ratios=[0.28, 0.42, 0.42, 0.22, 0.40, 0.42, 0.42, 0.22],
+        hspace=0.28,
     )
     axes_b = {
         "t1": fig.add_subplot(b_sub[0]),
@@ -651,13 +651,13 @@ def main(out=None):
     # Two rows: f (full width) on top; g | h side-by-side on bottom
     # ============================================================
     bottom = outer[1].subgridspec(
-        2, 1, height_ratios=[1.00, 1.00], hspace=0.65,
+        2, 1, height_ratios=[0.90, 1.05], hspace=0.45,
     )
 
     ax_f = fig.add_subplot(bottom[0])
     panel_f(ax_f, monkeys)
 
-    bottom_row = bottom[1].subgridspec(1, 2, width_ratios=[1.5, 1.0], wspace=0.40)
+    bottom_row = bottom[1].subgridspec(1, 2, width_ratios=[1.50, 1.00], wspace=0.28)
     ax_g = fig.add_subplot(bottom_row[0])
     ax_h = fig.add_subplot(bottom_row[1])
     panel_g(ax_g, monkeys)

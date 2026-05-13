@@ -508,35 +508,32 @@ def main(out=None):
     fig = plt.figure(figsize=(7.74, 8.33))
 
     # Master gridspec: 3 rows.
-    # Tight top/bottom margins; modest inter-row spacing because rows have
-    # their own internal labels/legends that occupy the gap.
+    # Inter-row spacing is intentionally tight — each panel handles its own
+    # caption/legend padding within its slot.
     gs = fig.add_gridspec(
-        3, 1, hspace=0.70,
-        height_ratios=[1.10, 1.10, 1.05],
-        left=0.07, right=0.975, top=0.975, bottom=0.105,
+        3, 1, hspace=0.42,
+        height_ratios=[1.00, 1.05, 1.05],
+        left=0.07, right=0.975, top=0.975, bottom=0.085,
     )
 
     # ---- Row 1: panel a (left) | panel b (right) ----
-    row1 = gs[0].subgridspec(1, 2, width_ratios=[1.0, 1.80], wspace=0.16)
+    row1 = gs[0].subgridspec(1, 2, width_ratios=[1.0, 1.85], wspace=0.16)
 
-    # Panel a: photo on top, legend below. Give photo more vertical room
-    # so its aspect ratio comes out close to the source's ~2.0.
-    a_sub = row1[0].subgridspec(2, 1, height_ratios=[1.7, 1.0], hspace=0.20)
+    # Panel a: photo on top, legend below.
+    a_sub = row1[0].subgridspec(2, 1, height_ratios=[1.25, 1.0], hspace=0.18)
     ax_photo = fig.add_subplot(a_sub[0])
     ax_legend = fig.add_subplot(a_sub[1])
     panel_a(ax_photo, ax_legend)
 
     # Panel b: two stacked groups of (title / labels / prediction).
-    # 7 rows × 2 cols: the narrow left column hosts the row-label text in
-    # its own axes (prevents the text from bleeding into adjacent strip
-    # axes — caught by _layout_check.text_intrudes_into_axes). The title
-    # spans both columns. Use 7 rows so we can leave a clear gap between
-    # video 1 and video 2.
+    # 7 rows × 2 cols. The narrow spacer row (b_sub[3, :]) separates the two
+    # videos. The narrow left column hosts row-label text (so it can't bleed
+    # into the strip axes' region — `_layout_check.text_intrudes_into_axes`).
     b_sub = row1[1].subgridspec(
         7, 2,
-        height_ratios=[0.35, 0.70, 0.70, 0.35, 0.35, 0.70, 0.70],
+        height_ratios=[0.30, 0.60, 0.60, 0.30, 0.30, 0.60, 0.60],
         width_ratios=[0.10, 1.00],
-        hspace=0.15, wspace=0.0,
+        hspace=0.12, wspace=0.0,
     )
     axes_b = [
         {"title":      fig.add_subplot(b_sub[0, :]),
@@ -550,16 +547,15 @@ def main(out=None):
          "pred_label": fig.add_subplot(b_sub[6, 0]),
          "pred":       fig.add_subplot(b_sub[6, 1])},
     ]
-    # Hide the spacer row (b_sub[3, :]) — nothing renders there.
     panel_b(axes_b, data)
 
     # ---- Row 2: c | d | e+colorbar ----
-    row2 = gs[1].subgridspec(1, 3, width_ratios=[0.85, 1.00, 1.45],
-                             wspace=0.85)
+    row2 = gs[1].subgridspec(1, 3, width_ratios=[0.80, 1.05, 1.30],
+                             wspace=0.55)
     ax_c = fig.add_subplot(row2[0])
     ax_d = fig.add_subplot(row2[1])
     # Panel e with a small colorbar slot on top.
-    e_sub = row2[2].subgridspec(2, 1, height_ratios=[0.05, 1.0], hspace=0.50)
+    e_sub = row2[2].subgridspec(2, 1, height_ratios=[0.05, 1.0], hspace=0.30)
     cax_e = fig.add_subplot(e_sub[0])
     ax_e = fig.add_subplot(e_sub[1])
     panel_c(ax_c, data)
@@ -567,8 +563,8 @@ def main(out=None):
     panel_e(ax_e, data, cax_e)
 
     # ---- Row 3: f | g | h ----
-    row3 = gs[2].subgridspec(1, 3, width_ratios=[1.1, 1.35, 0.85],
-                             wspace=0.65)
+    row3 = gs[2].subgridspec(1, 3, width_ratios=[1.10, 1.30, 1.00],
+                             wspace=0.48)
     ax_f = fig.add_subplot(row3[0])
     ax_g = fig.add_subplot(row3[1])
     ax_h = fig.add_subplot(row3[2])
