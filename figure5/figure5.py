@@ -98,14 +98,21 @@ def panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig):
             p for p in fig.patches
             if getattr(p, "_fig5_panel_a_dot", False) is False
         ]
+        renderer = fig.canvas.get_renderer()
         for dot_ax, img_ax in [(ax_top_dot, ax_top_img),
                                (ax_bot_dot, ax_bot_img)]:
             color = getattr(dot_ax, "_dot_color")
             text  = getattr(dot_ax, "_dot_text")
-            img_bb = img_ax.get_position()
+            # Use the actual rendered image extent (aspect='equal' shrinks
+            # the data area inside the slot), so we center above the IMAGE.
+            if img_ax.images:
+                img_bb_disp = img_ax.images[0].get_window_extent(renderer)
+                img_bb = img_bb_disp.transformed(fig.transFigure.inverted())
+            else:
+                img_bb = img_ax.get_position()
             dot_bb = dot_ax.get_position()
-            renderer = fig.canvas.get_renderer()
-            txt_objs = [t for t in dot_ax.texts]
+            # Match by content; ax_top_dot also carries the "a" panel label.
+            txt_objs = [tx for tx in dot_ax.texts if tx.get_text() == text]
             if not txt_objs:
                 continue
             t = txt_objs[0]
@@ -120,9 +127,11 @@ def panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig):
             unit_x0 = center_x - total_w / 2
             dot_cx = unit_x0 + dot_d / 2
             text_x = unit_x0 + dot_d + gap
-            # Vertical center: above the dot_ax center so the dot+text sits
-            # clearly above the box top edge.
-            y_center = dot_bb.y0 + dot_bb.height * 0.95
+            # Vertical center: above the top edge of the rounded box so the
+            # dot+label has full clearance.  The box top sits at img_bb.y1
+            # plus a small pad — push label well above that.
+            box_top = img_bb.y1 + 0.010   # pad_y from _draw_boxes
+            y_center = box_top + 0.018
             inv = dot_ax.transAxes.inverted()
             dot_axes_xy = inv.transform(
                 fig.transFigure.transform((text_x, y_center))
@@ -144,28 +153,31 @@ def panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig):
         ax.imshow(img, aspect="equal")
         _hide_spines(ax)
 
-    # Draw rounded gray boxes around each image after first draw (so we know
-    # the final position of each image axis in figure coords).
+    # Draw a rounded gray box around each two-dish asset.  Because aspect='equal'
+    # shrinks the data area inside the gridspec slot, we compute the box from
+    # the IMAGE's actual rendered window extent (not the slot bbox).
     def _draw_boxes(event):
-        # Remove any previously added panel-a boxes
         fig.patches[:] = [
             p for p in fig.patches
             if getattr(p, "_fig5_panel_a_box", False) is False
         ]
+        renderer = fig.canvas.get_renderer()
         for ax in (ax_top_img, ax_bot_img):
-            bb = ax.get_position()
-            pad_x = 0.018
-            pad_y_top = 0.005
-            pad_y_bot = 0.022
+            if not ax.images:
+                continue
+            disp = ax.images[0].get_window_extent(renderer)
+            bb = disp.transformed(fig.transFigure.inverted())
+            pad_x = 0.012
+            pad_y = 0.010
             x0 = bb.x0 - pad_x
-            y0 = bb.y0 - pad_y_bot
+            y0 = bb.y0 - pad_y
             w = bb.width + 2 * pad_x
-            h = bb.height + pad_y_top + pad_y_bot
+            h = bb.height + 2 * pad_y
             box = patches.FancyBboxPatch(
                 (x0, y0), w, h,
-                boxstyle="round,pad=0.002,rounding_size=0.012",
-                linewidth=0.9, edgecolor="#A0A0A0", facecolor="none",
-                transform=fig.transFigure, zorder=5,
+                boxstyle="round,pad=0.0,rounding_size=0.012",
+                linewidth=0.9, edgecolor="#A8A8A8", facecolor="none",
+                transform=fig.transFigure, zorder=5, clip_on=False,
             )
             box._fig5_panel_a_box = True
             fig.patches.append(box)
@@ -184,7 +196,7 @@ def _ethogram_row(ax, arr):
         ax.axvspan(s, e, ymin=0, ymax=1, facecolor=c, linewidth=0)
 
 
-def panel_b(ax_title, ax_lbl, ax_pred, data, ax_frames=None):
+def panel_b(ax_title, ax_lbl, ax_pred, data, ax_frames=None, fig=None):
     """Single example video ethogram (labels + prediction)."""
     panel_label(ax_title, "b", x=-0.07, y=0.35)
 
@@ -218,12 +230,26 @@ def panel_b(ax_title, ax_lbl, ax_pred, data, ax_frames=None):
     ax_pred.text(-0.015, 0.5, "prediction", transform=ax_pred.transAxes,
                  ha="right", va="center", fontsize=9)
 
-    # Title (italic — matches source)
+    # Title (italic — matches source); the accuracy number is bold-italic.
     _hide_spines(ax_title)
     ax_title.set_xlim(0, 1); ax_title.set_ylim(0, 1)
-    ax_title.text(0.0, 0.5,
-                  f"Example video 1: accuracy {acc:.1f}%",
-                  ha="left", va="center", fontsize=9.5, fontstyle="italic")
+    t1 = ax_title.text(0.0, 0.5,
+                       "Example video 1: accuracy ",
+                       ha="left", va="center", fontsize=9.5,
+                       fontstyle="italic")
+    # Render bold portion right after the first, using a draw-time offset.
+    bold_text = ax_title.text(0.0, 0.5,
+                              f"{acc:.1f}%",
+                              ha="left", va="center", fontsize=9.5,
+                              fontstyle="italic", fontweight="bold")
+
+    if fig is not None:
+        def _place_bold(event):
+            renderer = fig.canvas.get_renderer()
+            bb = t1.get_window_extent(renderer=renderer)
+            bb_ax = bb.transformed(ax_title.transAxes.inverted())
+            bold_text.set_x(bb_ax.x1)
+        fig.canvas.mpl_connect("draw_event", _place_bold)
 
     # "frames" caption in its own axis row.
     if ax_frames is not None:
@@ -268,7 +294,7 @@ def panel_c(ax_left_img, ax_cm, ax_cbar, ax_right_img, data, fig):
     )
     cmap.set_bad(COLORS["diag_gray"])
     vmax = float(cm[~mask_diag].max())
-    im = ax_cm.imshow(off, cmap=cmap, vmin=0, vmax=vmax)
+    im = ax_cm.imshow(off, cmap=cmap, vmin=0, vmax=vmax, aspect="equal")
 
     # Diagonal as gray rectangles (clean edges)
     for i in range(2):
@@ -291,8 +317,8 @@ def panel_c(ax_left_img, ax_cm, ax_cbar, ax_right_img, data, fig):
     ax_cm.set_xticks([0, 1])
     ax_cm.set_yticks([0, 1])
     ax_cm.set_xticklabels(["raiding", "no raiding"], fontsize=8.5)
-    ax_cm.set_yticklabels(["raiding", "no raiding"], fontsize=8.5, rotation=90,
-                          va="center")
+    ax_cm.set_yticklabels(["raiding", "no raiding"], fontsize=8.5,
+                          rotation=0, ha="right", va="center")
     for tl, c in zip(ax_cm.get_xticklabels(),
                      [COLORS["raiding"], COLORS["no_raiding"]]):
         tl.set_color(c)
@@ -317,6 +343,25 @@ def panel_c(ax_left_img, ax_cm, ax_cbar, ax_right_img, data, fig):
     ax_cbar.tick_params(labelsize=8, length=2)
     ax_cbar.set_ylabel("misclassified frames", fontsize=8.5, labelpad=4)
     cb.outline.set_linewidth(0.5)
+
+    # Tuck the colorbar tight against the right edge of the (aspect-equal)
+    # matrix.  Aspect='equal' shrinks the matrix inside its slot, so the cbar
+    # axis (which was placed in the next gridspec column) is otherwise too far
+    # to the right.
+    def _tuck_cbar(event):
+        renderer = fig.canvas.get_renderer()
+        if not ax_cm.images:
+            return
+        cm_ext = ax_cm.images[0].get_window_extent(renderer)
+        cm_ext = cm_ext.transformed(fig.transFigure.inverted())
+        cbar_pos = ax_cbar.get_position()
+        # Place the cbar 1.5% of figure-width to the right of matrix right edge,
+        # vertically aligned with the matrix and same height.
+        new_x0 = cm_ext.x1 + 0.012
+        ax_cbar.set_position([
+            new_x0, cm_ext.y0, cbar_pos.width, cm_ext.height,
+        ])
+    fig.canvas.mpl_connect("draw_event", _tuck_cbar)
 
     # Left + right circular thumbnails
     for ax, fn in [(ax_left_img,  "petri_c_left.png"),
@@ -471,31 +516,31 @@ def panel_e(ax):
             ha="center", va="top", fontsize=9, clip_on=False)
     # Right axis stack: "harder" (italic) near top, "segmentation" middle (plain),
     # "easier" (italic) near bottom — all rotated 90° outside the right edge.
-    x_right = box_x1 + 0.07
-    box_h = box_y1 - box_y0
-    # Push easier/harder all the way to the corners; segmentation is centered.
-    y_easier  = box_y0 + box_h * 0.05
-    y_seg     = box_y0 + box_h * 0.50
-    y_harder  = box_y0 + box_h * 0.95
-    # Use figure-level annotate so the text positions are absolute and
-    # not affected by axes clipping behavior.
-    ax.annotate("easier", xy=(x_right, y_easier), xycoords="data",
-                ha="center", va="center", fontsize=8, fontstyle="italic",
-                rotation=90, annotation_clip=False)
-    ax.annotate("segmentation", xy=(x_right, y_seg), xycoords="data",
-                ha="center", va="center", fontsize=8.5,
-                rotation=90, annotation_clip=False)
-    ax.annotate("harder", xy=(x_right, y_harder), xycoords="data",
-                ha="center", va="center", fontsize=8, fontstyle="italic",
-                rotation=90, annotation_clip=False)
-    # Left axis: "behavioral organization" — TWO stacked rotated lines, the
-    # outer line (organization) is FARTHER from the box.
-    # In source, "behavioral" reads top-to-bottom as the FIRST line, then
-    # "organization" reads top-to-bottom as the SECOND line (offset to the left).
-    ax.text(box_x0 - 0.08, mid_y, "behavioral",
+    # Right-axis labels: two columns.  "segmentation" sits CLOSER to the box
+    # (full-height rotated label); "easier" (bottom) and "harder" (top) sit
+    # in a SECOND column further to the right.
+    x_seg   = box_x1 + 0.05
+    x_outer = box_x1 + 0.11
+    ax.annotate("segmentation", xy=(x_seg, (box_y0 + box_y1) / 2),
+                xycoords="data",
+                ha="center", va="center", fontsize=9,
+                rotation=90, rotation_mode="anchor", annotation_clip=False)
+    ax.annotate("easier", xy=(x_outer, box_y0 + 0.10 * (box_y1 - box_y0)),
+                xycoords="data",
+                ha="left", va="center", fontsize=8, fontstyle="italic",
+                rotation=90, rotation_mode="anchor", annotation_clip=False)
+    ax.annotate("harder", xy=(x_outer, box_y1 - 0.10 * (box_y1 - box_y0)),
+                xycoords="data",
+                ha="right", va="center", fontsize=8, fontstyle="italic",
+                rotation=90, rotation_mode="anchor", annotation_clip=False)
+    # Left axis: "behavioral organization" — TWO stacked rotated lines.
+    # In source, "behavioral" is FARTHER from the box (leftmost column),
+    # "organization" is CLOSER to the box (rightmost column).  Both read
+    # bottom-to-top (90° rotation).
+    ax.text(box_x0 - 0.14, mid_y, "behavioral",
             ha="center", va="center", fontsize=9, rotation=90,
             rotation_mode="anchor", clip_on=False)
-    ax.text(box_x0 - 0.14, mid_y, "organization",
+    ax.text(box_x0 - 0.07, mid_y, "organization",
             ha="center", va="center", fontsize=9, rotation=90,
             rotation_mode="anchor", clip_on=False)
 
@@ -503,15 +548,16 @@ def panel_e(ax):
     ORANGE = COLORS["raiding"]
     LIME = "#7BBE3F"
     DARK_GREEN = COLORS["investigate"]
-    BLUE = COLORS["feral"]
+    DARK_BLUE = "#2C5AA0"          # C. elegans — navy
+    LIGHT_BLUE = COLORS["feral"]   # zebras — sky blue
     # (italic_part, plain_part_or_None, x, y, color)
     items = [
-        ("O. biroi colonies",     None,           0.42, 0.78, ORANGE),      # upper-mid
+        ("O. biroi colonies",     None,           0.44, 0.78, ORANGE),      # upper-mid
         ("primates",              None,           0.70, 0.68, DARK_GREEN),  # upper-right
         ("CalMS21",               None,           0.36, 0.58, LIME),        # middle-left
         ("O. biroi",              " adult-larva", 0.58, 0.46, DARK_GREEN),  # center
-        ("C. elegans",            None,           0.36, 0.32, BLUE),        # lower-left
-        ("zebras",                None,           0.70, 0.30, BLUE),        # lower-right
+        ("C. elegans",            None,           0.40, 0.30, DARK_BLUE),   # lower-left
+        ("zebras",                None,           0.70, 0.30, LIGHT_BLUE),  # lower-right
     ]
     for italic_part, plain_part, x, y, color in items:
         if plain_part is None:
@@ -537,26 +583,26 @@ def main(out=None):
     data = load_collective_ants()
     maps = load_all_maps()
 
-    fig = plt.figure(figsize=(7.9, 6.44))
+    fig = plt.figure(figsize=(7.9, 6.55))
 
     # Master 3-row gridspec
     gs = fig.add_gridspec(
         3, 1,
-        height_ratios=[1.30, 0.90, 1.55],
-        hspace=0.55,
-        left=0.08, right=0.97, top=0.96, bottom=0.15,
+        height_ratios=[1.85, 1.20, 1.55],
+        hspace=0.42,
+        left=0.08, right=0.97, top=0.96, bottom=0.14,
     )
 
     # ---- Row 1: panel a (left), panel b (right) ----
-    row1 = gs[0].subgridspec(1, 2, width_ratios=[1.0, 2.7], wspace=0.30)
+    row1 = gs[0].subgridspec(1, 2, width_ratios=[1.0, 1.95], wspace=0.25)
 
     # Panel a: two stacked (dot-header + image) rows.
     # Image rows need enough height so the 2:1 wide petri photos render at
     # natural aspect inside the rounded gray boxes (matches source look).
     a_sub = row1[0].subgridspec(
         4, 1,
-        height_ratios=[0.20, 1.0, 0.20, 1.0],
-        hspace=0.50,
+        height_ratios=[0.22, 1.0, 0.25, 1.0],
+        hspace=0.20,
     )
     ax_a_top_dot = fig.add_subplot(a_sub[0])
     ax_a_top_img = fig.add_subplot(a_sub[1])
@@ -574,13 +620,15 @@ def main(out=None):
     ax_b_lbl   = fig.add_subplot(b_sub[1])
     ax_b_pred  = fig.add_subplot(b_sub[2])
     ax_b_frames = fig.add_subplot(b_sub[3])
-    panel_b(ax_b_title, ax_b_lbl, ax_b_pred, data, ax_b_frames)
+    panel_b(ax_b_title, ax_b_lbl, ax_b_pred, data, ax_b_frames, fig=fig)
 
-    # ---- Row 2: panel c (left thumb | matrix+cbar | right thumb) ----
+    # ---- Row 2: panel c (left thumb | matrix | cbar | right thumb) ----
+    # Want the colorbar to sit RIGHT NEXT TO the matrix (tight), with the
+    # right thumbnail separated by a larger gap.
     row2 = gs[1].subgridspec(
         1, 4,
-        width_ratios=[0.75, 1.30, 0.09, 0.75],
-        wspace=0.35,
+        width_ratios=[0.80, 1.55, 0.08, 0.80],
+        wspace=0.18,
     )
     ax_c_left  = fig.add_subplot(row2[0])
     ax_c_cm    = fig.add_subplot(row2[1])
@@ -596,11 +644,18 @@ def main(out=None):
     panel_e(ax_e)
 
     # ---- Output ----
-    # Draw once so positions settle, then add cross-axes patches that depend
-    # on those positions (panel-a rounded boxes + panel-c curved arrows).
+    # Draw multiple times so:
+    #   1st draw: image axes settle (aspect='equal' shrinks them); text bboxes
+    #             become available.
+    #   2nd draw: panel-a dot+label positions recompute against the now-known
+    #             image extents and text widths; panel-a rounded boxes redraw.
+    #   3rd draw: panel-b bold "<acc>%" recomputes its x against the italic
+    #             prefix at its now-final position.
+    fig.canvas.draw()
     fig.canvas.draw()
     if hasattr(fig, "_panel_c_add_arrows"):
         fig._panel_c_add_arrows()
+    fig.canvas.draw()
 
     if out is None:
         out = os.path.join(HERE, "figure5_remade.png")
