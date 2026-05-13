@@ -48,10 +48,7 @@ os.makedirs(PANELS_DIR, exist_ok=True)
 
 # Panel sizes (CSS pixels at 96 DPI).
 SIZES = {
-    # Petri photos are ~2:1 (wide). Two stacked with a small gap for the
-    # "raiding" HTML header → ~170 wide × 200 tall total. Anything more
-    # leaves whitespace inside the panel.
-    "a":         (170, 200),
+    # Panel a is composed entirely in HTML (no entry needed here).
     "b":         (560, 270),
     "c_matrix":  (240, 240),   # square: matrix + colorbar
     "d":         (490, 230),
@@ -74,19 +71,11 @@ def _save_svg(fig: plt.Figure, name: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-def render_a():
-    fig = _new_fig("a")
-    gs = fig.add_gridspec(2, 1, height_ratios=[1.0, 1.0], hspace=0.04)
-    ax_top_img = fig.add_subplot(gs[0])
-    ax_bot_img = fig.add_subplot(gs[1])
-    import matplotlib.pyplot as _plt
-    ax_top_dot = _plt.Axes(fig, [0, 0, 0.001, 0.001])
-    ax_bot_dot = _plt.Axes(fig, [0, 0, 0.001, 0.001])
-    panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig,
-            show_headers=False)
-    fig.canvas.draw()
-    fig.canvas.draw()
-    return _save_svg(fig, "a")
+# Panel A is composed entirely in HTML (see figure5.html):
+#   - 2 petri photos as <img src="assets/petri_*.png">
+#   - rounded gray box via CSS border + border-radius
+#   - dot+text headers via CSS circles + text
+# No matplotlib rendering needed; therefore no render_a function.
 
 
 def render_b():
@@ -107,11 +96,16 @@ def render_b():
 
 
 def render_c_matrix():
-    """Just the 2x2 confusion matrix + colorbar; thumbnails + arrows in HTML."""
+    """Just the 2x2 confusion matrix + colorbar; thumbnails + arrows in HTML.
+
+    The colorbar slot is very narrow (width 0.04) so the matrix dominates
+    visually — earlier versions had cbar at width 0.10 which looked huge
+    once the matrix shrank to keep aspect='equal'.
+    """
     fig = _new_fig("c_matrix")
     data = load_collective_ants()
 
-    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 0.10], wspace=0.10)
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 0.04], wspace=0.05)
     ax_cm   = fig.add_subplot(gs[0])
     ax_cbar = fig.add_subplot(gs[1])
 
@@ -190,7 +184,6 @@ def render_e():
 
 # ---------------------------------------------------------------------------
 RENDERERS = {
-    "a": render_a,
     "b": render_b,
     "c_matrix": render_c_matrix,
     "d": render_d,
