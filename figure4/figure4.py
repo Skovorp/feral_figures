@@ -306,15 +306,18 @@ def panel_d(ax, data):
     for tl, b in zip(ax.get_xticklabels(), behaviors):
         tl.set_color(ZEBRA_COLORS[b])
 
-    # Push the bottom further below 0 so the y=0 tick label has clear
-    # separation from the axis line (matches the source typography and
-    # ensures the label isn't clipped against the bottom x-axis text).
-    ax.set_ylim(-1300, 17500)
+    # ylim top runs ~2k frames above the data max (~18000) so whisker
+    # caps and topmost scatter dots have visible headroom inside the
+    # plot area without leaving excessive empty space. "17500" stays the
+    # topmost LABELED tick; gridlines stop there (no minor ticks above).
+    ax.set_ylim(-1300, 20000)
     ax.set_yticks([0, 2500, 5000, 7500, 10000, 12500, 15000, 17500])
     ax.set_yticklabels(["0", "2500", "5000", "7500", "10000",
                         "12500", "15000", "17500"])
     ax.set_ylabel("frames", fontsize=9)
-    ax.yaxis.grid(True, linestyle="--", linewidth=0.4, color=PAL["grid"], alpha=0.8)
+    ax.yaxis.grid(True, linestyle="--", linewidth=0.4,
+                  color=PAL["grid"], alpha=0.8, which="major")
+    ax.minorticks_off()
     ax.set_axisbelow(True)
     ax.tick_params(axis="x", length=0)
     ax.set_xlim(-0.7, 1.7)

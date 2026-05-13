@@ -132,7 +132,18 @@ rasterize, even if `--panels` is `[]`.
   bottom so the `0` tick label sits above the axis line (matches the
   published typography). Examples:
   - Figure 2 panel f: `ylim=(-0.4, 10)`
-  - Figure 4 panel d: `ylim=(-700, 17500)`
+  - Figure 4 panel d: `ylim=(-1300, 20000)`
+- The top of `ylim` must run **above the data max**, not equal to it.
+  If `ylim_top == data_max`, the top whisker caps and topmost scatter
+  dots sit flush against the top spine and read as cropped — even
+  though no tick label is being clipped. The fix is a data-side
+  ylim bump (e.g. data max ≈ 18000 → `ylim_top = 20000`), not a
+  figure-padding change. Figure 4 panel d was bitten by this in
+  2026-05; see `wiki/raw/learnings/2026-05-13-panel-d-data-flush-against-ylim-top.md`.
+- Pick `ylim_top` ≈ next-tick-after-data-max (round data max up to a
+  tick boundary, then add one tick). Keep the highest LABELED tick at
+  a round number (`17500`) — that's still the topmost tick the reader
+  sees; the extra space above it is intentional whitespace.
 
 ### Assets are cropped, not generated
 - `_extract_assets.py` crops photos out of `ORIG_figure_N.png` (the

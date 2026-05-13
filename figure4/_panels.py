@@ -51,8 +51,8 @@ def _new_fig(name: str) -> plt.Figure:
     the figure edge — without padding, matplotlib places the tick right
     at the top of the SVG.
 
-    `h_pad=0.05` ≈ 7 pt of vertical padding inside the figure.
-    `w_pad=0.05` ≈ 7 pt of horizontal padding.
+    `h_pad=0.15` ≈ 11 pt of vertical padding inside the figure.
+    `w_pad=0.08` ≈ 6 pt of horizontal padding.
     """
     apply_rcparams()
     w, h = SIZES[name]
