@@ -105,6 +105,9 @@ def panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig,
     # at the dot AXIS vertical center (which already sits between rows of the
     # subgridspec).
     def _place_dots(event):
+        # No-op when the HTML layer is drawing the dot+text headers.
+        if not show_headers:
+            return
         fig.patches[:] = [
             p for p in fig.patches
             if getattr(p, "_fig5_panel_a_dot", False) is False
@@ -112,8 +115,10 @@ def panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig,
         renderer = getattr(event, "renderer", None) or fig.canvas.get_renderer()
         for dot_ax, img_ax in [(ax_top_dot, ax_top_img),
                                (ax_bot_dot, ax_bot_img)]:
-            color = getattr(dot_ax, "_dot_color")
-            text  = getattr(dot_ax, "_dot_text")
+            color = getattr(dot_ax, "_dot_color", None)
+            text  = getattr(dot_ax, "_dot_text", None)
+            if color is None or text is None:
+                continue
             # Use the actual rendered image extent (aspect='equal' shrinks
             # the data area inside the slot), so we center above the IMAGE.
             if img_ax.images:
@@ -563,12 +568,14 @@ def panel_e(ax):
     LIGHT_BLUE = COLORS["feral"]   # zebras — sky blue
     # (italic_part, plain_part_or_None, x, y, color)
     items = [
-        ("O. biroi colonies",     None,           0.44, 0.78, ORANGE),      # upper-mid
-        ("primates",              None,           0.70, 0.68, DARK_GREEN),  # upper-right
-        ("CalMS21",               None,           0.36, 0.58, LIME),        # middle-left
-        ("O. biroi",              " adult-larva", 0.58, 0.46, DARK_GREEN),  # center
-        ("C. elegans",            None,           0.40, 0.30, DARK_BLUE),   # lower-left
-        ("zebras",                None,           0.70, 0.30, LIGHT_BLUE),  # lower-right
+        ("O. biroi colonies",     None,           0.42, 0.78, ORANGE),      # upper-mid
+        ("primates",              None,           0.68, 0.68, DARK_GREEN),  # upper-right
+        ("CalMS21",               None,           0.34, 0.58, LIME),        # middle-left
+        # Pull "O. biroi adult-larva" left so the trailing "-larva"
+        # doesn't run into the right-axis "segmentation" label.
+        ("O. biroi",              " adult-larva", 0.50, 0.46, DARK_GREEN),  # center
+        ("C. elegans",            None,           0.38, 0.30, DARK_BLUE),   # lower-left
+        ("zebras",                None,           0.68, 0.30, LIGHT_BLUE),  # lower-right
     ]
     for italic_part, plain_part, x, y, color in items:
         if plain_part is None:

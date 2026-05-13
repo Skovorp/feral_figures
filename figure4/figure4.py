@@ -306,9 +306,10 @@ def panel_d(ax, data):
     for tl, b in zip(ax.get_xticklabels(), behaviors):
         tl.set_color(ZEBRA_COLORS[b])
 
-    # Push the bottom slightly below 0 so the y=0 tick label sits clearly
-    # above the axis line (matches the source typography).
-    ax.set_ylim(-700, 17500)
+    # Push the bottom further below 0 so the y=0 tick label has clear
+    # separation from the axis line (matches the source typography and
+    # ensures the label isn't clipped against the bottom x-axis text).
+    ax.set_ylim(-1300, 17500)
     ax.set_yticks([0, 2500, 5000, 7500, 10000, 12500, 15000, 17500])
     ax.set_yticklabels(["0", "2500", "5000", "7500", "10000",
                         "12500", "15000", "17500"])

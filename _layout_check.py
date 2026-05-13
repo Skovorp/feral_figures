@@ -165,34 +165,27 @@ def check_text_collisions(
     """
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
-    # Collect every text artist from every axes + figure-level texts.
+    # Collect every text artist from every axes + figure-level texts,
+    # deduplicated by object identity (avoid double-counting artists
+    # that appear in both `ax.texts` and `ax._children`).
     items: list[tuple[str, Bbox, str]] = []
+    seen_ids: set[int] = set()
     for ax in fig.axes:
-        for t in list(ax.texts):
-            s = t.get_text().strip()
+        candidates = list(ax.texts) + list(getattr(ax, "_children", []) or [])
+        for t in candidates:
+            if id(t) in seen_ids:
+                continue
+            if not hasattr(t, "get_text") or not hasattr(t, "get_window_extent"):
+                continue
+            s = (t.get_text() or "").strip()
             if not s or s in ignore_texts:
                 continue
             try:
                 bb = t.get_window_extent(renderer)
             except Exception:
                 continue
+            seen_ids.add(id(t))
             items.append((s, bb, f"axes {ax.get_label() or id(ax)}"))
-        # Annotations live on axes too
-        for ann in list(getattr(ax, "_children", []) or []):
-            # rough check for Annotation/Text-derived objects
-            if not hasattr(ann, "get_text") or not hasattr(ann, "get_window_extent"):
-                continue
-            s = ann.get_text().strip() if hasattr(ann, "get_text") else ""
-            if not s or s in ignore_texts:
-                continue
-            if (s, None, None) in [(x[0], None, None) for x in items]:
-                # Skip if already seen as ax.texts
-                pass
-            try:
-                bb = ann.get_window_extent(renderer)
-            except Exception:
-                continue
-            items.append((s, bb, f"axes {ax.get_label() or id(ax)} (annotation)"))
 
     for i, (s1, b1, src1) in enumerate(items):
         for j in range(i + 1, len(items)):

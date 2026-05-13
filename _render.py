@@ -115,18 +115,44 @@ def force_no_crop(fig: Figure) -> None:
                     pass
 
 
-def save_svg(fig: Figure, out_path: str, *, pad_inches: float = 0.10) -> str:
-    """Save `fig` as SVG with NO cropping.
+def save_svg(fig: Figure, out_path: str, *,
+             pad_inches: float = 0.10,
+             check: bool = True,
+             skip_text_collisions: bool = True) -> str:
+    """Save `fig` as SVG with NO cropping, optionally running layout checks.
 
     1. `force_no_crop` ensures every artist counts in the tight bbox.
     2. `bbox_inches='tight'` expands the SVG canvas to fit them.
-    3. `pad_inches` (default 0.10in ≈ 7pt) adds breathing room for
-       descenders / antialiased edges.
+    3. `pad_inches` adds breathing room for descenders / antialiased edges.
+    4. If `check=True`, runs `_layout_check.check_figure` and prints any
+       errors to stderr (does NOT raise — many panels intentionally have
+       rotated labels that near-touch).
 
-    `out_path` should already be absolute. The directory is created if
-    it doesn't exist. Returns `out_path`.
+    `skip_text_collisions` defaults to True because rotated-label panels
+    (mAP comparisons, per-class bars) routinely have small overlaps that
+    are visually OK at print size. Pass False for explicit checking.
+
+    Returns `out_path` (which always wins — the check is informational).
     """
     force_no_crop(fig)
+    if check:
+        import sys as _sys
+        _here = os.path.dirname(os.path.abspath(__file__))
+        if _here not in _sys.path:
+            _sys.path.insert(0, _here)
+        from _layout_check import check_figure  # noqa: WPS433
+        rep = check_figure(fig, raise_on_error=False,
+                           print_report=False,
+                           skip_text_collisions=skip_text_collisions)
+        if not rep.ok:
+            # Print issues to stderr so build.py can collect them; never raise.
+            import sys
+            print(f"  ⚠ layout issues in {os.path.basename(out_path)}:",
+                  file=sys.stderr)
+            for i in rep.issues:
+                print(f"      [{i.severity}] {i.kind}: {i.detail}",
+                      file=sys.stderr)
+
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     fig.savefig(out_path, format="svg", bbox_inches="tight",
                 pad_inches=pad_inches, facecolor="white")

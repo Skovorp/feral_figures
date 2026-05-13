@@ -71,17 +71,21 @@ def _save_svg(fig: plt.Figure, name: str) -> str:
 def render_a():
     fig = _new_fig("a")
     # HTML draws the dot+text headers; matplotlib draws only the photos.
-    # Gridspec is just two image rows separated by a small visual gap.
+    # Tight hspace=0.04 makes the two petri boxes nearly touch (matches
+    # the source figure where they sit close together).
     gs = fig.add_gridspec(
-        2, 1, height_ratios=[1.0, 1.0], hspace=0.18,
-        left=0.05, right=0.95, top=0.95, bottom=0.04,
+        2, 1, height_ratios=[1.0, 1.0], hspace=0.04,
+        left=0.05, right=0.95, top=0.97, bottom=0.03,
     )
     ax_top_img = fig.add_subplot(gs[0])
     ax_bot_img = fig.add_subplot(gs[1])
-    # We pass dummy axes for the dot positions (panel_a will hide them).
-    ax_top_dot = fig.add_subplot(gs[0])
-    ax_bot_dot = fig.add_subplot(gs[1])
-    ax_top_dot.set_visible(False); ax_bot_dot.set_visible(False)
+    # Dummy axes for panel_a's signature (won't be drawn because
+    # show_headers=False just hides them and never registers any artist).
+    # We DON'T add them as subplots — they have no figure presence, so
+    # they can't overlap with the image axes.
+    import matplotlib.pyplot as _plt
+    ax_top_dot = _plt.Axes(fig, [0, 0, 0.001, 0.001])
+    ax_bot_dot = _plt.Axes(fig, [0, 0, 0.001, 0.001])
     panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig,
             show_headers=False)
     fig.canvas.draw()

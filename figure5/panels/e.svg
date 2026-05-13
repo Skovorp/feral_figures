@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-05-13T17:52:06.895266</dc:date>
+    <dc:date>2026-05-13T18:00:33.331380</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -91,25 +91,25 @@ z
     <text style="font: 9px 'Arial'; text-anchor: middle" x="24.509297" y="79.88625" transform="rotate(-90 24.509297 79.88625)">organization</text>
    </g>
    <g id="text_8">
-    <text style="fill: #f0996e; font: italic 9.5px 'Arial'; text-anchor: middle" x="76.835391" y="48.929648" transform="rotate(-0 76.835391 48.929648)">O. biroi colonies</text>
+    <text style="fill: #f0996e; font: italic 9.5px 'Arial'; text-anchor: middle" x="73.715391" y="48.929648" transform="rotate(-0 73.715391 48.929648)">O. biroi colonies</text>
    </g>
    <g id="text_9">
-    <text style="fill: #3e9863; font: 9.5px 'Arial'; text-anchor: middle" x="117.395391" y="61.304648" transform="rotate(-0 117.395391 61.304648)">primates</text>
+    <text style="fill: #3e9863; font: 9.5px 'Arial'; text-anchor: middle" x="114.275391" y="61.304648" transform="rotate(-0 114.275391 61.304648)">primates</text>
    </g>
    <g id="text_10">
-    <text style="fill: #7bbe3f; font: 9.5px 'Arial'; text-anchor: middle" x="64.355391" y="73.679648" transform="rotate(-0 64.355391 73.679648)">CalMS21</text>
+    <text style="fill: #7bbe3f; font: 9.5px 'Arial'; text-anchor: middle" x="61.235391" y="73.679648" transform="rotate(-0 61.235391 73.679648)">CalMS21</text>
    </g>
    <g id="text_11">
-    <text style="fill: #3e9863; font: italic 9.5px 'Arial'; text-anchor: end" x="98.675391" y="88.529648" transform="rotate(-0 98.675391 88.529648)">O. biroi</text>
+    <text style="fill: #3e9863; font: italic 9.5px 'Arial'; text-anchor: end" x="86.195391" y="88.529648" transform="rotate(-0 86.195391 88.529648)">O. biroi</text>
    </g>
    <g id="text_12">
-    <text style="fill: #3e9863; font: 9.5px 'Arial'; text-anchor: start" x="98.675391" y="88.529648" transform="rotate(-0 98.675391 88.529648)"> adult-larva</text>
+    <text style="fill: #3e9863; font: 9.5px 'Arial'; text-anchor: start" x="86.195391" y="88.529648" transform="rotate(-0 86.195391 88.529648)"> adult-larva</text>
    </g>
    <g id="text_13">
-    <text style="fill: #2c5aa0; font: italic 9.5px 'Arial'; text-anchor: middle" x="70.595391" y="108.345977" transform="rotate(-0 70.595391 108.345977)">C. elegans</text>
+    <text style="fill: #2c5aa0; font: italic 9.5px 'Arial'; text-anchor: middle" x="67.475391" y="108.345977" transform="rotate(-0 67.475391 108.345977)">C. elegans</text>
    </g>
    <g id="text_14">
-    <text style="fill: #83c2dd; font: 9.5px 'Arial'; text-anchor: middle" x="117.395391" y="108.329648" transform="rotate(-0 117.395391 108.329648)">zebras</text>
+    <text style="fill: #83c2dd; font: 9.5px 'Arial'; text-anchor: middle" x="114.275391" y="108.329648" transform="rotate(-0 114.275391 108.329648)">zebras</text>
    </g>
   </g>
  </g>
