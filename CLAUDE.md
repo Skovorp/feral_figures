@@ -29,7 +29,32 @@ figures/
     └── figureN_html.png    final rasterized output
 ```
 
+## Quickstart (first-time setup)
+
+```bash
+# 1. Create + activate env (see "Stack" below for what gets installed)
+conda create -n feral_figures python=3.13 -y
+conda activate feral_figures
+pip install matplotlib pillow numpy scikit-learn
+
+# 2. Confirm headless Chrome is on the macOS default path
+ls "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+# Linux users: install chromium or google-chrome on PATH; _render.find_chrome
+# will pick whichever it finds first (see CHROME_CANDIDATES in _render.py).
+
+# 3. From the repo root, build any figure
+cd figures
+python3 figure4/build.py
+```
+
+Output lands at `figureN/figureN_html.png`. Open it side-by-side with
+`figureN/ORIG_figure_N.png` to compare.
+
 ## Build commands
+
+Always run from the `figures/` directory (paths are relative to it).
+`build.py` does three things in order: render every panel's SVG → run
+Chrome to layout-check the HTML → run Chrome again to rasterize to PNG.
 
 ```bash
 # Full rebuild of one figure
@@ -38,12 +63,30 @@ python3 figureN/build.py
 # Just rebuild specific panels (faster — HTML reuses other SVGs)
 python3 figureN/build.py --panels c h
 
-# Higher DPI for print
+# Higher DPI for print (default 3 ≈ 288 DPI)
 python3 figureN/build.py --scale 4
 
-# Allow build to finish even when overflow check fails (debug)
+# Custom output filename
+python3 figureN/build.py --out figureN_draft.png
+
+# Allow build to finish even when the HTML overflow check fails (debug)
 python3 figureN/build.py --no-strict
 ```
+
+Render just one panel's SVG without the Chrome composite (useful for
+isolating layout issues):
+
+```bash
+python3 figureN/_panels.py d        # writes figureN/panels/d.svg only
+```
+
+## Per-figure summary
+
+| figure | canvas (CSS px) | required data files | notes |
+|---|---|---|---|
+| `figure2` | `780 × 820`  | `data/calms.json` | CalMS21 ethogram + mAP bars |
+| `figure4` | `830 × 1140` | `data/zebra.json`, `data/monkeys.json` | zebra + monkey behavior panels |
+| `figure5` | `790 × 660`  | `data/{collective_ants,ants,calms,zebra,monkeys,worms,mabe}.json` | cross-species generalization |
 
 ## How edits work
 
@@ -97,13 +140,17 @@ rasterize, even if `--panels` is `[]`.
   SVG canvas backend.
 
 ### Aspect / no-squish
-- `_save_svg` in every `_panels.py` uses `bbox_inches="tight",
-  pad_inches=0.02` so matplotlib auto-expands the SVG to include every
-  rotated tick label, citation, twin-axis title, etc. — nothing gets
-  clipped at the SVG edge by construction.
+- Every `_panels.py::_save_svg` calls `_render.save_svg(tight=False)`.
+  We rely on `constrained_layout`'s auto-padding rather than
+  `bbox_inches='tight'`. The two **fight each other** — tight crops
+  away the padding constrained_layout just added — so we pick one and
+  stick with it. See the `matplotlib-tight-bbox-vs-constrained-layout`
+  skill in the vault for the full retro.
 - HTML `.panel img` uses `object-fit: contain; object-position:
   center;` so the SVG keeps its aspect ratio when scaled into the CSS
-  slot. Whitespace > distortion.
+  slot. Whitespace > distortion. The SVG dimensions in `_panels.py
+  SIZES` must match the CSS slot's `width`/`height` in `figureN.html`
+  to avoid letterboxing.
 
 ### Layout safety
 - `_layout_check.check_figure(fig)` runs after every matplotlib panel
@@ -139,7 +186,7 @@ rasterize, even if `--panels` is `[]`.
   though no tick label is being clipped. The fix is a data-side
   ylim bump (e.g. data max ≈ 18000 → `ylim_top = 20000`), not a
   figure-padding change. Figure 4 panel d was bitten by this in
-  2026-05; see `wiki/raw/learnings/2026-05-13-panel-d-data-flush-against-ylim-top.md`.
+  2026-05; see `$FERAL_SHARED_DOCS/raw/learnings/2026-05-13-panel-d-data-flush-against-ylim-top.md`.
 - Pick `ylim_top` ≈ next-tick-after-data-max (round data max up to a
   tick boundary, then add one tick). Keep the highest LABELED tick at
   a round number (`17500`) — that's still the topmost tick the reader
@@ -184,13 +231,41 @@ conda activate feral_figures
 pip install matplotlib pillow numpy scikit-learn
 ```
 
-- Python 3.13 · **matplotlib 3.10+** (needed for `layout="constrained"`
-  on `plt.figure` — auto-pads margins so no tick label, legend, or
-  twin-axis label can get clipped at the SVG edge)
-- Pillow · numpy · scikit-learn (`average_precision_score` for figure 4
-  panel h)
-- Headless Chrome at `/Applications/Google Chrome.app/Contents/MacOS/`
-  via `--screenshot` + `--force-device-scale-factor=3` (≈ 300 DPI)
+### Python deps (all pip-installed above)
+
+| package | min version | used for |
+|---|---|---|
+| `matplotlib`   | 3.10+ | all panel rendering; `layout="constrained"` on `plt.figure` |
+| `numpy`        | any   | data manipulation in `figureN.py` |
+| `Pillow` (PIL) | any   | `_extract_assets.py` photo crops, circular thumbnail masks |
+| `scikit-learn` | any   | `sklearn.metrics.average_precision_score` (figure 4 panel h, figure 2 mAP) |
+
+Standard library: `json`, `re`, `os`, `subprocess`, `shutil`,
+`argparse`, `dataclasses` — no extra installs.
+
+### Fonts (Arial)
+
+`_style.apply_rcparams` sets `font.family = "Arial"`. macOS ships with
+Arial in `/Library/Fonts`. On Linux, install it explicitly or
+matplotlib falls back to DejaVu Sans (will break visual parity with
+the published figure):
+
+```bash
+sudo apt-get install ttf-mscorefonts-installer
+# or copy Arial.ttf into ~/.fonts/ and run `fc-cache -fv`
+```
+
+### Headless Chrome
+
+`_render.find_chrome` probes `CHROME_CANDIDATES` in order:
+
+- macOS: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`
+- macOS (Chromium): `/Applications/Chromium.app/Contents/MacOS/Chromium`
+- Linux/`$PATH`: `google-chrome`, `chromium`, `chrome`
+
+Used twice per build: once with `--dump-dom` to read the JS-populated
+`#overflow-report`, once with `--screenshot` + `--force-device-scale-factor`
+to rasterize the HTML to PNG.
 
 ## constrained_layout
 
@@ -203,5 +278,7 @@ That means:
 - Don't pass `left=`, `right=`, `top=`, `bottom=` to `add_gridspec` —
   constrained_layout sets margins automatically based on the actual
   rendered text bboxes.
-- `bbox_inches='tight'` (in `save_svg`) is still used; the two cooperate
-  fine and the result is "no crops, no overlaps, no manual fiddling."
+- Save with `tight=False` (the default in `save_svg`). Do **not** add
+  `bbox_inches='tight'` — see "Aspect / no-squish" above.
+- Tune the padding with `fig.get_layout_engine().set(h_pad=…, w_pad=…)`
+  in `_new_fig` (inches). Current default: `h_pad=0.15`, `w_pad=0.08`.
