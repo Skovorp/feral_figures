@@ -151,6 +151,66 @@ def check_axes_overlap(
     return report
 
 
+def check_text_collisions(
+    fig: Figure,
+    report: Report,
+    *,
+    min_overlap_px: float = 2.0,
+    ignore_texts: Sequence[str] = ("",),
+) -> Report:
+    """Flag any two text objects whose pixel bboxes intersect.
+
+    Catches the panel-c case where rotated rotated labels from different
+    bars run into each other. Empty / whitespace-only text is skipped.
+    """
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    # Collect every text artist from every axes + figure-level texts.
+    items: list[tuple[str, Bbox, str]] = []
+    for ax in fig.axes:
+        for t in list(ax.texts):
+            s = t.get_text().strip()
+            if not s or s in ignore_texts:
+                continue
+            try:
+                bb = t.get_window_extent(renderer)
+            except Exception:
+                continue
+            items.append((s, bb, f"axes {ax.get_label() or id(ax)}"))
+        # Annotations live on axes too
+        for ann in list(getattr(ax, "_children", []) or []):
+            # rough check for Annotation/Text-derived objects
+            if not hasattr(ann, "get_text") or not hasattr(ann, "get_window_extent"):
+                continue
+            s = ann.get_text().strip() if hasattr(ann, "get_text") else ""
+            if not s or s in ignore_texts:
+                continue
+            if (s, None, None) in [(x[0], None, None) for x in items]:
+                # Skip if already seen as ax.texts
+                pass
+            try:
+                bb = ann.get_window_extent(renderer)
+            except Exception:
+                continue
+            items.append((s, bb, f"axes {ax.get_label() or id(ax)} (annotation)"))
+
+    for i, (s1, b1, src1) in enumerate(items):
+        for j in range(i + 1, len(items)):
+            s2, b2, src2 = items[j]
+            inter = Bbox.intersection(b1, b2)
+            if inter is None:
+                continue
+            if inter.width < min_overlap_px or inter.height < min_overlap_px:
+                continue
+            report.add(
+                "text_collision",
+                f"{s1!r} ↔ {s2!r} overlap by "
+                f"{int(inter.width)}x{int(inter.height)} px ({src1})",
+                severity="error",
+            )
+    return report
+
+
 def check_text_overflow(
     fig: Figure,
     report: Report,
@@ -197,14 +257,18 @@ def check_figure(
     *,
     image_aspect_tolerance: float = 0.03,
     text_margin_px: float = 2.0,
+    text_collision_min_px: float = 2.0,
     raise_on_error: bool = False,
     print_report: bool = True,
+    skip_text_collisions: bool = False,
 ) -> Report:
     """Run all checks; return Report; optionally raise if any error."""
     report = Report()
     check_aspects(fig, report, image_aspect_tolerance=image_aspect_tolerance)
     check_axes_overlap(fig, report)
     check_text_overflow(fig, report, margin_px=text_margin_px)
+    if not skip_text_collisions:
+        check_text_collisions(fig, report, min_overlap_px=text_collision_min_px)
     if print_report:
         print(report.summary())
     if raise_on_error and not report.ok:
