@@ -66,28 +66,39 @@ def _hide_spines(ax):
         s.set_visible(False)
 
 
-def panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig):
-    """Two stacked petri-dish panels with dot+label header above each.
+def panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig,
+            show_headers=True):
+    """Two stacked petri-dish panels with optional dot+label header above each.
 
     Each image axis gets a rounded gray box outline drawn on the figure
     (so the box can extend slightly beyond the image edge for the source look).
-    Dot+label header is centered horizontally above its box.
+
+    When `show_headers=False`, the dot+label header is NOT drawn — the
+    HTML composition layer (figure5.html) overlays a CSS dot + text so
+    the circles render crisply at any zoom.
     """
     panel_label(ax_top_dot, "a", x=-0.30, y=1.50)
 
-    # The dots are drawn as figure-coord circles after layout so they're
-    # circular (not stretched by the axis aspect ratio).
-    def _dot_header(ax, color, text):
+    def _hide(ax):
         _hide_spines(ax)
         ax.set_xlim(0, 1); ax.set_ylim(0, 1)
-        # Just place the text centered; the colored dot is drawn after layout
-        # in figure coords (so it stays circular).
-        ax.text(0.5, 0.5, text, ha="left", va="center", fontsize=10)
-        ax._dot_color = color
-        ax._dot_text = text
 
-    _dot_header(ax_top_dot, COLORS["no_raiding"], "no raiding")
-    _dot_header(ax_bot_dot, COLORS["raiding"],    "raiding")
+    if show_headers:
+        # The dots are drawn as figure-coord circles after layout so they're
+        # circular (not stretched by the axis aspect ratio).
+        def _dot_header(ax, color, text):
+            _hide(ax)
+            # Just place the text centered; the colored dot is drawn after
+            # layout in figure coords (so it stays circular).
+            ax.text(0.5, 0.5, text, ha="left", va="center", fontsize=10)
+            ax._dot_color = color
+            ax._dot_text = text
+
+        _dot_header(ax_top_dot, COLORS["no_raiding"], "no raiding")
+        _dot_header(ax_bot_dot, COLORS["raiding"],    "raiding")
+    else:
+        _hide(ax_top_dot)
+        _hide(ax_bot_dot)
 
     # Re-center the dot+text unit horizontally above the matching box.
     # Done at draw time so axes positions are settled. The dot+text is placed

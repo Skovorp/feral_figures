@@ -49,12 +49,32 @@
       z-index: 5;
     }
 
+    /* Panel a — dot+label header above each petri box, drawn in HTML
+       (matplotlib draws only the photos). Center horizontally above its
+       box; edit `.dot-header` top to align with the box top edge. */
+    .dot-header {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      z-index: 6;
+    }
+    .dot-header .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
     /* --- Layout grid ----------------------------------------------------
        Row 1 (y=  0..280):  a [  0..170]   b [180..790]
        Row 2 (y=280..440):  c band: left-thumb | matrix | right-thumb
        Row 3 (y=440..660):  d [  0..490]    e [490..790]
        -------------------------------------------------------------------- */
-    #a { left:   0px; top:   0px; width: 170px; height: 360px; }
+    #a { left:   0px; top:  18px; width: 170px; height: 230px; }
     #b { left: 180px; top:   8px; width: 600px; height: 270px; }
 
     #c-left   { left:  10px; top: 295px; width: 130px; height: 130px; }
@@ -70,6 +90,14 @@
 </head>
 <body>
   <div class="panel" id="a"><div class="letter">a</div><img src="panels/a.svg" alt="a"></div>
+  <!-- Panel-a HTML dot+text headers (replace matplotlib Circle dots).
+       Positioned just above each petri box. To re-align: tweak left/top. -->
+  <div class="dot-header" style="left: 45px; top: 0px;">
+    <span class="dot" style="background:#5A5A5A"></span>no raiding
+  </div>
+  <div class="dot-header" style="left: 60px; top: 128px;">
+    <span class="dot" style="background:#F0996E"></span>raiding
+  </div>
   <div class="panel" id="b"><div class="letter">b</div><img src="panels/b.svg" alt="b"></div>
 
   <!-- Panel C: thumbnails + matrix + arrows ----------------------------- -->

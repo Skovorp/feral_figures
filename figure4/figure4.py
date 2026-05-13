@@ -99,30 +99,36 @@ def _ethogram_strip(ax, arr, color_map, height=1.0, y=0.0):
 
 
 # ---------------------------------------------------------------------------
-def panel_a(ax_dots, ax_thumb_list, data):
+def panel_a(ax_dots, ax_thumb_list, data, show_legend=True):
     """Legend row: 3 colored dots + labels above 3 thumbnails.
 
     `ax_thumb_list` is a list of 3 axes, one per thumbnail. Splitting into
     one axes per image lets each axes be (close to) square so the 250x250
     PNGs don't get stretched.
+
+    When `show_legend=False`, the dot+label row is suppressed — the HTML
+    layer (figure4.html) draws those overlays for crisp circle rendering.
     """
     panel_label(ax_dots, "a", x=-0.05, y=0.95, fontsize=12)
 
-    # Dots row
+    # Hide the dots axes — we still pass it so the gridspec layout is
+    # unchanged for the matplotlib-only render path.
     ax_dots.set_xlim(0, 3); ax_dots.set_ylim(0, 1)
     ax_dots.set_xticks([]); ax_dots.set_yticks([])
     for s in ax_dots.spines.values():
         s.set_visible(False)
 
-    entries = [
-        (0.25, PAL["no_label"], "no label"),
-        (1.25, PAL["vigilant"], "vigilant"),
-        (2.25, PAL["out_of_sight"], "out of sight"),
-    ]
-    for x, c, lbl in entries:
-        ax_dots.add_patch(patches.Circle((x, 0.5), 0.16, facecolor=c, edgecolor="none",
-                                         transform=ax_dots.transData))
-        ax_dots.text(x + 0.22, 0.5, lbl, fontsize=9, va="center", ha="left")
+    if show_legend:
+        entries = [
+            (0.25, PAL["no_label"], "no label"),
+            (1.25, PAL["vigilant"], "vigilant"),
+            (2.25, PAL["out_of_sight"], "out of sight"),
+        ]
+        for x, c, lbl in entries:
+            ax_dots.add_patch(patches.Circle((x, 0.5), 0.16, facecolor=c,
+                                             edgecolor="none",
+                                             transform=ax_dots.transData))
+            ax_dots.text(x + 0.22, 0.5, lbl, fontsize=9, va="center", ha="left")
 
     # Thumbnails — one axes per image so each cell is square.
     thumbs = [
@@ -300,7 +306,9 @@ def panel_d(ax, data):
     for tl, b in zip(ax.get_xticklabels(), behaviors):
         tl.set_color(ZEBRA_COLORS[b])
 
-    ax.set_ylim(0, 17500)
+    # Push the bottom slightly below 0 so the y=0 tick label sits clearly
+    # above the axis line (matches the source typography).
+    ax.set_ylim(-700, 17500)
     ax.set_yticks([0, 2500, 5000, 7500, 10000, 12500, 15000, 17500])
     ax.set_yticklabels(["0", "2500", "5000", "7500", "10000",
                         "12500", "15000", "17500"])

@@ -69,7 +69,8 @@ def render_a():
     ax_dots = fig.add_subplot(gs[0])
     thumbs_gs = gs[1].subgridspec(1, 3, wspace=0.06)
     ax_thumbs = [fig.add_subplot(thumbs_gs[0, i]) for i in range(3)]
-    panel_a(ax_dots, ax_thumbs, zebra)
+    # Suppress the matplotlib Circle legend — HTML draws those.
+    panel_a(ax_dots, ax_thumbs, zebra, show_legend=False)
     return _save_svg(fig, "a")
 
 

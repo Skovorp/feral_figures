@@ -35,6 +35,24 @@
       line-height: 1;
     }
 
+    /* Panel-a legend dots — drawn in HTML so they're crisp CSS circles. */
+    .legend-row {
+      position: absolute;
+      display: flex;
+      gap: 12px;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      z-index: 6;
+    }
+    .legend-row .entry { display: flex; align-items: center; gap: 5px; }
+    .legend-row .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
     /* --- Layout grid ---------------------------------------------------
        TOP HALF (zebra), y = 0..620:
          left column (a/c/d):  x = 0..340
@@ -60,6 +78,12 @@
 </head>
 <body>
   <div class="panel" id="a"><div class="letter">a</div><img src="panels/a.svg" alt="a"></div>
+  <!-- Panel-a legend dots (HTML circles, replace matplotlib Circle artists) -->
+  <div class="legend-row" style="left: 25px; top: 4px;">
+    <div class="entry"><span class="dot" style="background:#5A5A5A"></span>no label</div>
+    <div class="entry"><span class="dot" style="background:#E66B3D"></span>vigilant</div>
+    <div class="entry"><span class="dot" style="background:#83D8C7"></span>out of sight</div>
+  </div>
   <div class="panel" id="b"><div class="letter">b</div><img src="panels/b.svg" alt="b"></div>
   <div class="panel" id="c"><div class="letter">c</div><img src="panels/c.svg" alt="c"></div>
   <div class="panel" id="d"><div class="letter">d</div><img src="panels/d.svg" alt="d"></div>

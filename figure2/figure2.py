@@ -201,28 +201,26 @@ def panel_c(ax, data):
     sublabels = ["", "(Sun et al. 2021)", "(Sun et al. 2021)", "(Zhao et al. 2025)"]
     colors_ = [COLORS["feral"], COLORS["baseline"], COLORS["baseline"], COLORS["baseline"]]
 
-    # Bar layout: positions auto-widened until rotated labels stop
-    # colliding (verified by _layout_check.check_text_collisions). The
-    # initial spacing of 1.6 fits at fontsize 8.5/6 with 30° rotation;
-    # if a longer label or font change re-introduces overlap, this loop
-    # widens the bars step-by-step.
+    # Bar layout: wider bars (width=1.0) with snug spacing that auto-widens
+    # only if rotated labels collide. Citation sits tight under each main
+    # label (xytext (0,-10)) — both anchored at the bar's right edge.
     label_colors = [COLORS["feral"], "black", "black", "black"]
     import sys as _sys, os as _os
     _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
     from _layout_check import check_text_collisions, Report  # type: ignore
 
-    spacing = 1.6
+    BAR_W = 1.0
+    spacing = 1.5
     max_spacing = 4.0
     while spacing <= max_spacing:
-        # Clear previous bars/annotations and redraw at current spacing
         for child in list(ax.patches):
             child.remove()
         for child in list(ax.texts):
             child.remove()
 
         x = np.arange(4) * spacing
-        ax.bar(x, vals, color=colors_, width=0.7, linewidth=0)
-        ax.set_xlim(-0.6, x[-1] + 0.6)
+        ax.bar(x, vals, color=colors_, width=BAR_W, linewidth=0)
+        ax.set_xlim(-0.7, x[-1] + 0.7)
         ax.set_xticks(x); ax.set_xticklabels([""] * 4)
 
         # Bar value labels
@@ -231,10 +229,12 @@ def panel_c(ax, data):
                     fontsize=9,
                     color=COLORS["feral"] if xi == 0 else "black")
 
-        # Rotated label + citation per bar
+        # Rotated labels anchored at the bar's right edge so each label
+        # AND its citation snug up to the right. The citation is just
+        # ~10 pts below the main label so they read as a single block.
         trans = ax.get_xaxis_transform()
         for xi, lbl, sub, col in zip(x, labels, sublabels, label_colors):
-            anchor_x = xi + 0.35
+            anchor_x = xi + BAR_W / 2
             ax.annotate(lbl, xy=(anchor_x, 0), xycoords=trans,
                         xytext=(0, -3), textcoords="offset points",
                         ha="right", va="top", rotation=30,
@@ -242,18 +242,17 @@ def panel_c(ax, data):
                         fontsize=8.5, color=col, annotation_clip=False)
             if sub:
                 ax.annotate(sub, xy=(anchor_x, 0), xycoords=trans,
-                            xytext=(0, -16), textcoords="offset points",
+                            xytext=(0, -11), textcoords="offset points",
                             ha="right", va="top", rotation=30,
                             rotation_mode="anchor",
                             fontsize=6, fontstyle="italic",
                             annotation_clip=False)
 
-        # Probe for collisions. ax.figure.canvas needs a drawn renderer.
         r = Report()
         check_text_collisions(ax.figure, r, min_overlap_px=2.0)
         if r.ok:
             break
-        spacing += 0.2
+        spacing += 0.15
 
     ax.set_ylim(86, 100)
     ax.set_yticks([86, 88, 90, 92, 94, 96, 98, 100])

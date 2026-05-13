@@ -74,18 +74,20 @@ def _save_svg(fig: plt.Figure, name: str) -> str:
 # ---------------------------------------------------------------------------
 def render_a():
     fig = _new_fig("a")
-    # 4-row gridspec: dot-header, image, dot-header, image
+    # HTML draws the dot+text headers; matplotlib draws only the photos.
+    # Gridspec is just two image rows separated by a small visual gap.
     gs = fig.add_gridspec(
-        4, 1,
-        height_ratios=[0.18, 1.0, 0.20, 1.0],
-        hspace=0.10,
-        left=0.05, right=0.95, top=0.93, bottom=0.04,
+        2, 1, height_ratios=[1.0, 1.0], hspace=0.18,
+        left=0.05, right=0.95, top=0.95, bottom=0.04,
     )
+    ax_top_img = fig.add_subplot(gs[0])
+    ax_bot_img = fig.add_subplot(gs[1])
+    # We pass dummy axes for the dot positions (panel_a will hide them).
     ax_top_dot = fig.add_subplot(gs[0])
-    ax_top_img = fig.add_subplot(gs[1])
-    ax_bot_dot = fig.add_subplot(gs[2])
-    ax_bot_img = fig.add_subplot(gs[3])
-    panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig)
+    ax_bot_dot = fig.add_subplot(gs[1])
+    ax_top_dot.set_visible(False); ax_bot_dot.set_visible(False)
+    panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig,
+            show_headers=False)
     fig.canvas.draw()
     fig.canvas.draw()  # 2nd pass so draw-event hooks settle
     return _save_svg(fig, "a")
