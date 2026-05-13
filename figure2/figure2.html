@@ -44,36 +44,40 @@
       line-height: 1;
     }
 
-    /* --- Behavior-labels legend (HTML, replaces the matplotlib version) -- */
+    /* --- Behavior-labels legend (HTML, replaces the matplotlib version) ---
+       Tightly packed, sits ~6px under the photo. To re-tune:
+         - top:     y position (close to photo bottom)
+         - width:   makes the box wider/narrower
+         - padding: internal whitespace
+         - gap:     row/column gap inside the 2x2 grid                       */
     #legend {
       position: absolute;
-      left: 12px;
-      top: 195px;
-      width: 200px;
-      height: 100px;
+      left: 18px;
+      top: 178px;
+      width: 184px;
       border: 1px solid #1A1A1A;
       border-radius: 12px;
-      padding: 8px 12px 10px 12px;
+      padding: 6px 10px 8px 10px;
       box-sizing: border-box;
       font-family: Arial, sans-serif;
-      font-size: 11px;
+      font-size: 10.5px;
       line-height: 1.1;
       background: white;
     }
     #legend .title {
-      font-size: 11px;
-      margin-bottom: 6px;
+      font-size: 10.5px;
+      margin-bottom: 4px;
     }
     #legend .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px 4px;
+      gap: 3px 2px;
       align-items: center;
     }
-    #legend .entry { display: flex; align-items: center; gap: 6px; }
+    #legend .entry { display: flex; align-items: center; gap: 5px; }
     #legend .dot {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       display: inline-block;
       flex-shrink: 0;

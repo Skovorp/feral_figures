@@ -433,17 +433,14 @@ def panel_g(ax):
                   color=COLORS["grid"], alpha=0.8)
     ax.set_axisbelow(True)
 
-    # Categorical x positions (even spacing). The source uses even spacing
-    # too — log spacing pushed the 1→5 gap too wide and made the rise look
-    # gentler than it does in the paper.
-    x_idx = np.arange(len(pct))
-    ax.plot(x_idx, maps, "o-", color="black", linewidth=1.2, markersize=5,
+    # Linear x-axis: 25 sits halfway from 0 to 50, etc.
+    ax.plot(pct, maps, "o-", color="black", linewidth=1.2, markersize=5,
             zorder=5)
     ax.axhline(videoprism, color=COLORS["feral"], linestyle="--",
                linewidth=1.0, zorder=4)
 
-    ax.set_xlim(-0.3, len(pct) - 0.7)
-    ax.set_xticks(x_idx)
+    ax.set_xlim(0, 52)
+    ax.set_xticks(pct)
     ax.set_xticklabels([str(int(p)) for p in pct], fontsize=9)
     ax.minorticks_off()
     ax.set_xlabel("% training data used", fontsize=10)
@@ -453,11 +450,11 @@ def panel_g(ax):
     ax.set_ylabel("mAP (%)", fontsize=10)
     ax.tick_params(axis="y", labelsize=9)
 
-    # Top axis: labelled-data duration. Even-spaced so its ticks align with
-    # the bottom axis (one duration per training-data %).
+    # Top axis: labelled-data duration in minutes, aligned to the same
+    # linear positions as the bottom axis (one duration per training-data %).
     secax = ax.twiny()
     secax.set_xlim(ax.get_xlim())
-    secax.set_xticks(x_idx)
+    secax.set_xticks(pct)
     def _fmt(m):
         return f"{m:g}"
     secax.set_xticklabels([_fmt(m) for m in mins], rotation=45, ha="left",
