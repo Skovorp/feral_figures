@@ -46,9 +46,16 @@ SIZES = {
 
 
 def _new_fig(name: str) -> plt.Figure:
+    """Figure with constrained_layout — matplotlib auto-pads margins so
+    NOTHING gets clipped (top tick labels, rotated x-tick labels, legend
+    below the axes, twin-axis labels, etc.). Replaces the previous
+    `add_axes` + `pad_inches` approach for figure-4 panels where the
+    available room was being miscalculated.
+    """
     apply_rcparams()
     w, h = SIZES[name]
-    return plt.figure(figsize=(w / 96, h / 96), dpi=96)
+    return plt.figure(figsize=(w / 96, h / 96), dpi=96,
+                      layout="constrained")
 
 
 def _save_svg(fig: plt.Figure, name: str) -> str:
@@ -60,12 +67,10 @@ def _save_svg(fig: plt.Figure, name: str) -> str:
 def render_a():
     fig = _new_fig("a")
     zebra = load_json("zebra.json")
-    gs = fig.add_gridspec(2, 1, height_ratios=[0.22, 1.0], hspace=0.10,
-                          left=0.04, right=0.98, top=0.95, bottom=0.04)
+    gs = fig.add_gridspec(2, 1, height_ratios=[0.22, 1.0], hspace=0.10)
     ax_dots = fig.add_subplot(gs[0])
     thumbs_gs = gs[1].subgridspec(1, 3, wspace=0.06)
     ax_thumbs = [fig.add_subplot(thumbs_gs[0, i]) for i in range(3)]
-    # Suppress the matplotlib Circle legend — HTML draws those.
     panel_a(ax_dots, ax_thumbs, zebra, show_legend=False)
     return _save_svg(fig, "a")
 
@@ -77,7 +82,6 @@ def render_b():
         8, 1,
         height_ratios=[0.28, 0.40, 0.40, 0.20, 0.30, 0.40, 0.40, 0.30],
         hspace=0.25,
-        left=0.10, right=0.99, top=0.95, bottom=0.08,
     )
     axes_b = {
         "t1": fig.add_subplot(gs[0]),
@@ -96,9 +100,7 @@ def render_b():
 def render_c():
     fig = _new_fig("c")
     zebra = load_json("zebra.json")
-    # Generous bottom margin to fit the "correctly labelled / error" legend
-    # below the bars (panel_c places it at bbox_to_anchor=(0.5, -0.32)).
-    ax = fig.add_axes([0.13, 0.32, 0.85, 0.58])
+    ax = fig.subplots()
     panel_c(ax, zebra)
     return _save_svg(fig, "c")
 
@@ -106,14 +108,14 @@ def render_c():
 def render_d():
     fig = _new_fig("d")
     zebra = load_json("zebra.json")
-    ax = fig.add_axes([0.18, 0.20, 0.78, 0.68])
+    ax = fig.subplots()
     panel_d(ax, zebra)
     return _save_svg(fig, "d")
 
 
 def render_e():
     fig = _new_fig("e")
-    ax = fig.add_axes([0.02, 0.02, 0.96, 0.94])
+    ax = fig.subplots()
     panel_e(ax)
     return _save_svg(fig, "e")
 
@@ -121,7 +123,7 @@ def render_e():
 def render_f():
     fig = _new_fig("f")
     monkeys = load_json("monkeys.json")
-    ax = fig.add_axes([0.05, 0.10, 0.93, 0.78])
+    ax = fig.subplots()
     panel_f(ax, monkeys)
     return _save_svg(fig, "f")
 
@@ -129,8 +131,7 @@ def render_f():
 def render_g():
     fig = _new_fig("g")
     monkeys = load_json("monkeys.json")
-    # Bottom margin for the legend below the bars.
-    ax = fig.add_axes([0.08, 0.30, 0.90, 0.60])
+    ax = fig.subplots()
     panel_g(ax, monkeys)
     return _save_svg(fig, "g")
 
@@ -138,8 +139,7 @@ def render_g():
 def render_h():
     fig = _new_fig("h")
     monkeys = load_json("monkeys.json")
-    # Wide left/right margins for the dual-y-axis labels.
-    ax = fig.add_axes([0.18, 0.40, 0.65, 0.50])
+    ax = fig.subplots()
     panel_h(ax, monkeys)
     return _save_svg(fig, "h")
 

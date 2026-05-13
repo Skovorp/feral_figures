@@ -54,10 +54,13 @@ SIZES = {
 
 
 def _new_fig(name: str) -> plt.Figure:
-    """Create a Figure sized to SIZES[name] at 96 DPI (so 1 CSS px = 1 px)."""
+    """Figure with constrained_layout — matplotlib auto-pads margins so
+    NOTHING gets clipped (top tick labels, rotated x-tick labels, legend
+    below, twin-axis labels, etc.)."""
     apply_rcparams()
     w, h = SIZES[name]
-    return plt.figure(figsize=(w / 96, h / 96), dpi=96)
+    return plt.figure(figsize=(w / 96, h / 96), dpi=96,
+                      layout="constrained")
 
 
 def _save_svg(fig: plt.Figure, name: str) -> str:
@@ -69,7 +72,7 @@ def _save_svg(fig: plt.Figure, name: str) -> str:
 def render_a():
     """Just the cage photo — the legend box is composed in HTML."""
     fig = _new_fig("a")
-    ax = fig.add_axes([0.04, 0.04, 0.94, 0.92])
+    ax = fig.subplots()
     panel_a(ax, ax_legend=None)
     return _save_svg(fig, "a")
 
@@ -82,7 +85,6 @@ def render_b():
         height_ratios=[0.30, 0.55, 0.55, 0.28, 0.30, 0.55, 0.55],
         width_ratios=[0.10, 1.00],
         hspace=0.12, wspace=0.0,
-        left=0.10, right=0.99, top=0.93, bottom=0.10,
     )
     axes_b = [
         {"title":      fig.add_subplot(gs[0, :]),
@@ -103,9 +105,7 @@ def render_b():
 def render_c():
     fig = _new_fig("c")
     data = load_data()
-    # Bottom margin is generous: rotated x-tick labels + italic citation
-    # subtext need ~30% of the height.
-    ax = fig.add_axes([0.27, 0.32, 0.70, 0.58])
+    ax = fig.subplots()
     panel_c(ax, data)
     return _save_svg(fig, "c")
 
@@ -113,7 +113,7 @@ def render_c():
 def render_d():
     fig = _new_fig("d")
     data = load_data()
-    ax = fig.add_axes([0.13, 0.22, 0.85, 0.66])
+    ax = fig.subplots()
     panel_d(ax, data)
     return _save_svg(fig, "d")
 
@@ -121,13 +121,7 @@ def render_d():
 def render_e():
     fig = _new_fig("e")
     data = load_data()
-    # Colorbar on top with room for its "misclassified frames" label.
-    # `top=0.82` leaves ~18% of the SVG height above the colorbar — enough
-    # for the label + tick numbers without clipping.
-    gs = fig.add_gridspec(
-        2, 1, height_ratios=[0.06, 1.0], hspace=0.30,
-        left=0.20, right=0.97, top=0.82, bottom=0.18,
-    )
+    gs = fig.add_gridspec(2, 1, height_ratios=[0.06, 1.0], hspace=0.30)
     cax = fig.add_subplot(gs[0])
     ax = fig.add_subplot(gs[1])
     panel_e(ax, data, cax)
@@ -137,16 +131,14 @@ def render_e():
 def render_f():
     fig = _new_fig("f")
     data = load_data()
-    ax = fig.add_axes([0.20, 0.25, 0.78, 0.62])
+    ax = fig.subplots()
     panel_f(ax, data)
     return _save_svg(fig, "f")
 
 
 def render_g():
     fig = _new_fig("g")
-    # Top axis "labelled data duration (mins)" needs ~25% of height,
-    # bottom "% training data" + legend needs ~25%.
-    ax = fig.add_axes([0.16, 0.25, 0.81, 0.50])
+    ax = fig.subplots()
     panel_g(ax)
     return _save_svg(fig, "g")
 
@@ -154,7 +146,7 @@ def render_g():
 def render_h():
     fig = _new_fig("h")
     data = load_data()
-    ax = fig.add_axes([0.25, 0.18, 0.70, 0.70])
+    ax = fig.subplots()
     panel_h(ax, data)
     return _save_svg(fig, "h")
 

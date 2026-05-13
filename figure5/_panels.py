@@ -48,7 +48,10 @@ os.makedirs(PANELS_DIR, exist_ok=True)
 
 # Panel sizes (CSS pixels at 96 DPI).
 SIZES = {
-    "a":         (170, 360),   # narrow, tall — two stacked petri boxes
+    # Petri photos are ~2:1 (wide). Two stacked with a small gap for the
+    # "raiding" HTML header → ~170 wide × 200 tall total. Anything more
+    # leaves whitespace inside the panel.
+    "a":         (170, 200),
     "b":         (560, 270),
     "c_matrix":  (240, 240),   # square: matrix + colorbar
     "d":         (490, 230),
@@ -57,9 +60,12 @@ SIZES = {
 
 
 def _new_fig(name: str) -> plt.Figure:
+    """Figure with constrained_layout — matplotlib auto-pads margins so
+    NOTHING gets clipped at any edge."""
     apply_rcparams()
     w, h = SIZES[name]
-    return plt.figure(figsize=(w / 96, h / 96), dpi=96)
+    return plt.figure(figsize=(w / 96, h / 96), dpi=96,
+                      layout="constrained")
 
 
 def _save_svg(fig: plt.Figure, name: str) -> str:
@@ -70,26 +76,16 @@ def _save_svg(fig: plt.Figure, name: str) -> str:
 # ---------------------------------------------------------------------------
 def render_a():
     fig = _new_fig("a")
-    # HTML draws the dot+text headers; matplotlib draws only the photos.
-    # Tight hspace=0.04 makes the two petri boxes nearly touch (matches
-    # the source figure where they sit close together).
-    gs = fig.add_gridspec(
-        2, 1, height_ratios=[1.0, 1.0], hspace=0.04,
-        left=0.05, right=0.95, top=0.97, bottom=0.03,
-    )
+    gs = fig.add_gridspec(2, 1, height_ratios=[1.0, 1.0], hspace=0.04)
     ax_top_img = fig.add_subplot(gs[0])
     ax_bot_img = fig.add_subplot(gs[1])
-    # Dummy axes for panel_a's signature (won't be drawn because
-    # show_headers=False just hides them and never registers any artist).
-    # We DON'T add them as subplots — they have no figure presence, so
-    # they can't overlap with the image axes.
     import matplotlib.pyplot as _plt
     ax_top_dot = _plt.Axes(fig, [0, 0, 0.001, 0.001])
     ax_bot_dot = _plt.Axes(fig, [0, 0, 0.001, 0.001])
     panel_a(ax_top_dot, ax_top_img, ax_bot_dot, ax_bot_img, fig,
             show_headers=False)
     fig.canvas.draw()
-    fig.canvas.draw()  # 2nd pass so draw-event hooks settle
+    fig.canvas.draw()
     return _save_svg(fig, "a")
 
 
@@ -100,7 +96,6 @@ def render_b():
         4, 1,
         height_ratios=[0.32, 0.55, 0.55, 0.20],
         hspace=0.15,
-        left=0.08, right=0.97, top=0.93, bottom=0.10,
     )
     ax_title  = fig.add_subplot(gs[0])
     ax_lbl    = fig.add_subplot(gs[1])
@@ -116,10 +111,7 @@ def render_c_matrix():
     fig = _new_fig("c_matrix")
     data = load_collective_ants()
 
-    gs = fig.add_gridspec(
-        1, 2, width_ratios=[1.0, 0.10], wspace=0.10,
-        left=0.30, right=0.84, top=0.85, bottom=0.20,
-    )
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.0, 0.10], wspace=0.10)
     ax_cm   = fig.add_subplot(gs[0])
     ax_cbar = fig.add_subplot(gs[1])
 
@@ -184,17 +176,14 @@ def render_c_matrix():
 def render_d():
     fig = _new_fig("d")
     maps = load_all_maps()
-    # Generous bottom margin so rotated italic species names don't clip.
-    ax = fig.add_axes([0.10, 0.45, 0.87, 0.42])
+    ax = fig.subplots()
     panel_d(ax, maps)
     return _save_svg(fig, "d")
 
 
 def render_e():
     fig = _new_fig("e")
-    # Box-frame with arrow axes — needs internal padding for the
-    # "harder/segmentation/easier" right-side stack.
-    ax = fig.add_axes([0.13, 0.13, 0.80, 0.75])
+    ax = fig.subplots()
     panel_e(ax)
     return _save_svg(fig, "e")
 

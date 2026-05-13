@@ -165,7 +165,32 @@ rasterize, even if `--panels` is `[]`.
 
 ## Stack
 
-- Python 3.9 · matplotlib 3.9 · Pillow · numpy · scikit-learn
-  (`average_precision_score` for figure 4 panel h).
-- Headless Chrome from `/Applications/Google Chrome.app/Contents/MacOS/`
-  via `--screenshot` and `--force-device-scale-factor=3` for ≈ 300 DPI.
+Conda env `feral_figures` — create + activate before any build:
+
+```bash
+conda create -n feral_figures python=3.13 -y
+conda activate feral_figures
+pip install matplotlib pillow numpy scikit-learn
+```
+
+- Python 3.13 · **matplotlib 3.10+** (needed for `layout="constrained"`
+  on `plt.figure` — auto-pads margins so no tick label, legend, or
+  twin-axis label can get clipped at the SVG edge)
+- Pillow · numpy · scikit-learn (`average_precision_score` for figure 4
+  panel h)
+- Headless Chrome at `/Applications/Google Chrome.app/Contents/MacOS/`
+  via `--screenshot` + `--force-device-scale-factor=3` (≈ 300 DPI)
+
+## constrained_layout
+
+Each `_panels.py::_new_fig` calls `plt.figure(layout="constrained")`.
+That means:
+
+- Use `fig.subplots()` or `fig.add_gridspec(...)` for axes —
+  **NEVER** `fig.add_axes([...])` (constrained_layout doesn't manage
+  manually positioned axes, so they get clipped).
+- Don't pass `left=`, `right=`, `top=`, `bottom=` to `add_gridspec` —
+  constrained_layout sets margins automatically based on the actual
+  rendered text bboxes.
+- `bbox_inches='tight'` (in `save_svg`) is still used; the two cooperate
+  fine and the result is "no crops, no overlaps, no manual fiddling."
