@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="203.399441pt" height="173.399462pt" viewBox="0 0 203.399441 173.399462" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="195pt" height="165pt" viewBox="0 0 195 165" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-05-13T18:22:29.799944</dc:date>
+    <dc:date>2026-05-13T18:34:28.423910</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -21,95 +21,95 @@
  </defs>
  <g id="figure_1">
   <g id="patch_1">
-   <path d="M 0 173.399462 
-L 203.399441 173.399462 
-L 203.399441 0 
+   <path d="M 0 165 
+L 195 165 
+L 195 0 
 L 0 0 
 z
 " style="fill: #ffffff"/>
   </g>
   <g id="axes_1">
    <g id="patch_2">
-    <path d="M 7.542247 163.613797 
-L 196.199441 163.613797 
-L 196.199441 19.849188 
-L 7.542247 19.849188 
+    <path d="M 6.214969 150.98382 
+L 189.24 150.98382 
+L 189.24 22.976302 
+L 6.214969 22.976302 
 z
 " style="fill: #ffffff"/>
    </g>
    <g id="matplotlib.axis_1"/>
    <g id="matplotlib.axis_2"/>
    <g id="line2d_1">
-    <path d="M 37.727398 146.362044 
-L 37.727398 34.225649 
+    <path d="M 35.498974 135.622918 
+L 35.498974 35.777054 
 " style="fill: none; stroke: #1a1a1a; stroke-width: 1.1"/>
    </g>
    <g id="line2d_2">
-    <path d="M 37.727398 146.362044 
-L 166.01429 146.362044 
+    <path d="M 35.498974 135.622918 
+L 159.955995 135.622918 
 " style="fill: none; stroke: #1a1a1a; stroke-width: 1.1"/>
    </g>
    <g id="patch_3">
-    <path d="M 37.727398 34.225649 
-Q 106.587274 34.225649 174.217312 34.225649 
+    <path d="M 35.498974 35.777054 
+Q 102.30311 35.777054 167.877409 35.777054 
 " style="fill: none; stroke: #1a1a1a; stroke-width: 1.1; stroke-linecap: round"/>
-    <path d="M 168.217312 31.225649 
-L 174.217312 34.225649 
-L 168.217312 37.225649 
+    <path d="M 161.877409 32.777054 
+L 167.877409 35.777054 
+L 161.877409 38.777054 
 z
 " style="fill: #1a1a1a; stroke: #1a1a1a; stroke-width: 1.1; stroke-linecap: round"/>
    </g>
    <g id="patch_4">
-    <path d="M 166.01429 146.362044 
-Q 166.01429 85.262085 166.01429 25.391964 
+    <path d="M 159.955995 135.622918 
+Q 159.955995 81.219723 159.955995 28.046365 
 " style="fill: none; stroke: #1a1a1a; stroke-width: 1.1; stroke-linecap: round"/>
-    <path d="M 163.01429 31.391964 
-L 166.01429 25.391964 
-L 169.01429 31.391964 
+    <path d="M 156.955995 34.046365 
+L 159.955995 28.046365 
+L 162.955995 34.046365 
 z
 " style="fill: #1a1a1a; stroke: #1a1a1a; stroke-width: 1.1; stroke-linecap: round"/>
    </g>
    <g id="text_1">
-    <text style="font-size: 9px; font-family: 'Arial'; text-anchor: middle" x="101.870844" y="13.642031" transform="rotate(-0 101.870844 13.642031)">tracking instability</text>
+    <text style="font-size: 9px; font-family: 'Arial'; text-anchor: middle" x="97.727484" y="17.241858" transform="rotate(-0 97.727484 17.241858)">tracking instability</text>
    </g>
    <g id="text_2">
-    <text style="font-size: 9px; font-family: 'Arial'; text-anchor: middle" x="101.870844" y="164.305243" transform="rotate(-0 101.870844 164.305243)">scene complexity</text>
+    <text style="font-size: 9px; font-family: 'Arial'; text-anchor: middle" x="97.727484" y="152.30555" transform="rotate(-0 97.727484 152.30555)">scene complexity</text>
    </g>
    <g id="text_3">
-    <text style="font-size: 9px; font-family: 'Arial'; text-anchor: middle" x="177.721056" y="90.293846" transform="rotate(-90 177.721056 90.293846)">segmentation</text>
+    <text style="font-size: 9px; font-family: 'Arial'; text-anchor: middle" x="171.381153" y="85.699986" transform="rotate(-90 171.381153 85.699986)">segmentation</text>
    </g>
    <g id="text_4">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial'; text-anchor: start" x="188.834706" y="135.148404" transform="rotate(-90 188.834706 135.148404)">easier</text>
+    <text style="font-style: italic; font-size: 8px; font-family: 'Arial'; text-anchor: start" x="182.156873" y="125.638331" transform="rotate(-90 182.156873 125.638331)">easier</text>
    </g>
    <g id="text_5">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial'; text-anchor: end" x="188.834706" y="45.439289" transform="rotate(-90 188.834706 45.439289)">harder</text>
+    <text style="font-style: italic; font-size: 8px; font-family: 'Arial'; text-anchor: end" x="182.156873" y="45.76164" transform="rotate(-90 182.156873 45.76164)">harder</text>
    </g>
    <g id="text_6">
-    <text style="font-size: 9px; font-family: 'Arial'; text-anchor: middle" x="13.642031" y="90.293846" transform="rotate(-90 13.642031 90.293846)">behavioral</text>
+    <text style="font-size: 9px; font-family: 'Arial'; text-anchor: middle" x="12.20211" y="85.699986" transform="rotate(-90 12.20211 85.699986)">behavioral</text>
    </g>
    <g id="text_7">
-    <text style="font-size: 9px; font-family: 'Arial'; text-anchor: middle" x="26.7953" y="90.293846" transform="rotate(-90 26.7953 90.293846)">organization</text>
+    <text style="font-size: 9px; font-family: 'Arial'; text-anchor: middle" x="24.961128" y="85.699986" transform="rotate(-90 24.961128 85.699986)">organization</text>
    </g>
    <g id="text_8">
-    <text style="font-style: italic; font-size: 9.5px; font-family: 'Arial'; text-anchor: middle; fill: #f0996e" x="86.778268" y="53.933301" transform="rotate(-0 86.778268 53.933301)">O. biroi colonies</text>
+    <text style="font-style: italic; font-size: 9.5px; font-family: 'Arial'; text-anchor: middle; fill: #f0996e" x="83.085482" y="53.593855" transform="rotate(-0 83.085482 53.593855)">O. biroi colonies</text>
    </g>
    <g id="text_9">
-    <text style="font-size: 9.5px; font-family: 'Arial'; text-anchor: middle; fill: #3e9863" x="135.829139" y="68.309761" transform="rotate(-0 135.829139 68.309761)">primates</text>
+    <text style="font-size: 9.5px; font-family: 'Arial'; text-anchor: middle; fill: #3e9863" x="130.67199" y="66.394606" transform="rotate(-0 130.67199 66.394606)">primates</text>
    </g>
    <g id="text_10">
-    <text style="font-size: 9.5px; font-family: 'Arial'; text-anchor: middle; fill: #7bbe3f" x="71.685693" y="82.686222" transform="rotate(-0 71.685693 82.686222)">CalMS21</text>
+    <text style="font-size: 9.5px; font-family: 'Arial'; text-anchor: middle; fill: #7bbe3f" x="68.443479" y="79.195358" transform="rotate(-0 68.443479 79.195358)">CalMS21</text>
    </g>
    <g id="text_11">
-    <text style="font-style: italic; font-size: 9.5px; font-family: 'Arial'; text-anchor: end; fill: #3e9863" x="101.870844" y="99.937975" transform="rotate(-0 101.870844 99.937975)">O. biroi</text>
+    <text style="font-style: italic; font-size: 9.5px; font-family: 'Arial'; text-anchor: end; fill: #3e9863" x="97.727484" y="94.55626" transform="rotate(-0 97.727484 94.55626)">O. biroi</text>
    </g>
    <g id="text_12">
-    <text style="font-size: 9.5px; font-family: 'Arial'; text-anchor: start; fill: #3e9863" x="101.870844" y="99.937975" transform="rotate(-0 101.870844 99.937975)"> adult-larva</text>
+    <text style="font-size: 9.5px; font-family: 'Arial'; text-anchor: start; fill: #3e9863" x="97.727484" y="94.55626" transform="rotate(-0 97.727484 94.55626)"> adult-larva</text>
    </g>
    <g id="text_13">
-    <text style="font-style: italic; font-size: 9.5px; font-family: 'Arial'; text-anchor: middle; fill: #2c5aa0" x="79.231981" y="122.956641" transform="rotate(-0 79.231981 122.956641)">C. elegans</text>
+    <text style="font-style: italic; font-size: 9.5px; font-family: 'Arial'; text-anchor: middle; fill: #2c5aa0" x="75.764481" y="115.053791" transform="rotate(-0 75.764481 115.053791)">C. elegans</text>
    </g>
    <g id="text_14">
-    <text style="font-size: 9.5px; font-family: 'Arial'; text-anchor: middle; fill: #83c2dd" x="135.829139" y="122.940313" transform="rotate(-0 135.829139 122.940313)">zebras</text>
+    <text style="font-size: 9.5px; font-family: 'Arial'; text-anchor: middle; fill: #83c2dd" x="130.67199" y="115.037463" transform="rotate(-0 130.67199 115.037463)">zebras</text>
    </g>
   </g>
  </g>

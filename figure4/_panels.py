@@ -46,28 +46,27 @@ SIZES = {
 
 
 def _new_fig(name: str) -> plt.Figure:
-    """Figure with constrained_layout — matplotlib auto-pads margins so
-    NOTHING gets clipped (top tick labels, rotated x-tick labels, legend
-    below the axes, twin-axis labels, etc.). Replaces the previous
-    `add_axes` + `pad_inches` approach for figure-4 panels where the
-    available room was being miscalculated.
+    """Figure with constrained_layout AND explicit padding so the top-most
+    tick label (e.g. panel d's "17500") gets clear breathing room from
+    the figure edge — without padding, matplotlib places the tick right
+    at the top of the SVG.
+
+    `h_pad=0.05` ≈ 7 pt of vertical padding inside the figure.
+    `w_pad=0.05` ≈ 7 pt of horizontal padding.
     """
     apply_rcparams()
     w, h = SIZES[name]
-    return plt.figure(figsize=(w / 96, h / 96), dpi=96,
-                      layout="constrained")
+    fig = plt.figure(figsize=(w / 96, h / 96), dpi=96, layout="constrained")
+    fig.get_layout_engine().set(h_pad=0.15, w_pad=0.08)
+    return fig
 
 
 def _save_svg(fig: plt.Figure, name: str) -> str:
-    """Save SVG with NO cropping — see `figures/_render.save_svg`.
-
-    `pad_inches=0.20` (larger than the default 0.10) because figure 4
-    panels are scaled into smallish CSS slots; the extra in-SVG padding
-    becomes scaled visual breathing room and keeps the top-most tick
-    label (e.g. panel d's "17500") from touching the slot edge.
-    """
+    """Save SVG without `bbox_inches='tight'` — constrained_layout already
+    sized the figure with proper padding; `tight` would crop that padding
+    back away (the cause of panel d's earlier "17500"-clipping problem)."""
     return save_svg(fig, os.path.join(PANELS_DIR, f"{name}.svg"),
-                    pad_inches=0.20)
+                    tight=False)
 
 
 # ---------------------------------------------------------------------------

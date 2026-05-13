@@ -117,22 +117,25 @@ def force_no_crop(fig: Figure) -> None:
 
 def save_svg(fig: Figure, out_path: str, *,
              pad_inches: float = 0.10,
+             tight: bool = False,
              check: bool = True,
              skip_text_collisions: bool = True) -> str:
     """Save `fig` as SVG with NO cropping, optionally running layout checks.
 
-    1. `force_no_crop` ensures every artist counts in the tight bbox.
-    2. `bbox_inches='tight'` expands the SVG canvas to fit them.
-    3. `pad_inches` adds breathing room for descenders / antialiased edges.
-    4. If `check=True`, runs `_layout_check.check_figure` and prints any
-       errors to stderr (does NOT raise — many panels intentionally have
-       rotated labels that near-touch).
+    With `tight=False` (default for constrained_layout figures): saves at
+    the full figsize so constrained_layout's auto-padding is preserved.
 
-    `skip_text_collisions` defaults to True because rotated-label panels
-    (mAP comparisons, per-class bars) routinely have small overlaps that
-    are visually OK at print size. Pass False for explicit checking.
+    With `tight=True`: uses `bbox_inches='tight'` with `pad_inches` of
+    breathing room. Use for figures NOT using constrained_layout, where
+    artists may extend past the figure bbox.
 
-    Returns `out_path` (which always wins — the check is informational).
+    NOTE: `bbox_inches='tight'` + constrained_layout fight each other —
+    tight crops away the padding constrained_layout just added. Always
+    set ONE strategy per figure, never both.
+
+    If `check=True`, runs `_layout_check.check_figure` and prints any
+    errors to stderr (does NOT raise — many panels intentionally have
+    rotated labels that near-touch).
     """
     force_no_crop(fig)
     if check:
@@ -145,7 +148,6 @@ def save_svg(fig: Figure, out_path: str, *,
                            print_report=False,
                            skip_text_collisions=skip_text_collisions)
         if not rep.ok:
-            # Print issues to stderr so build.py can collect them; never raise.
             import sys
             print(f"  ⚠ layout issues in {os.path.basename(out_path)}:",
                   file=sys.stderr)
@@ -154,8 +156,11 @@ def save_svg(fig: Figure, out_path: str, *,
                       file=sys.stderr)
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    fig.savefig(out_path, format="svg", bbox_inches="tight",
-                pad_inches=pad_inches, facecolor="white")
+    if tight:
+        fig.savefig(out_path, format="svg", bbox_inches="tight",
+                    pad_inches=pad_inches, facecolor="white")
+    else:
+        fig.savefig(out_path, format="svg", facecolor="white")
     import matplotlib.pyplot as plt
     plt.close(fig)
     return out_path

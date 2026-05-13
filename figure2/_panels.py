@@ -54,18 +54,19 @@ SIZES = {
 
 
 def _new_fig(name: str) -> plt.Figure:
-    """Figure with constrained_layout — matplotlib auto-pads margins so
-    NOTHING gets clipped (top tick labels, rotated x-tick labels, legend
-    below, twin-axis labels, etc.)."""
+    """Figure with constrained_layout + explicit h_pad/w_pad so the
+    top-most tick label gets clear breathing room from the figure edge."""
     apply_rcparams()
     w, h = SIZES[name]
-    return plt.figure(figsize=(w / 96, h / 96), dpi=96,
-                      layout="constrained")
+    fig = plt.figure(figsize=(w / 96, h / 96), dpi=96, layout="constrained")
+    fig.get_layout_engine().set(h_pad=0.15, w_pad=0.08)
+    return fig
 
 
 def _save_svg(fig: plt.Figure, name: str) -> str:
-    """Save SVG with NO cropping — see `figures/_render.save_svg`."""
-    return save_svg(fig, os.path.join(PANELS_DIR, f"{name}.svg"))
+    """Save SVG — constrained_layout handles padding, no tight bbox needed."""
+    return save_svg(fig, os.path.join(PANELS_DIR, f"{name}.svg"),
+                    tight=False)
 
 
 # ---------------------------------------------------------------------------
