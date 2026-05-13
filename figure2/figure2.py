@@ -201,13 +201,18 @@ def panel_c(ax, data):
     sublabels = ["", "(Sun et al. 2021)", "(Sun et al. 2021)", "(Zhao et al. 2025)"]
     colors_ = [COLORS["feral"], COLORS["baseline"], COLORS["baseline"], COLORS["baseline"]]
 
-    x = np.arange(4)
+    # Bar positions: spaced ~1.4 apart (wider gap than the default 1.0)
+    # so each bar's rotated label has room before the next bar's label
+    # starts. Citations sit DIRECTLY below the main label (same x anchor)
+    # rotated at the same 30° so the two lines stay parallel.
+    x = np.array([0.0, 1.4, 2.8, 4.2])
     ax.bar(x, vals, color=colors_, width=0.7, linewidth=0)
     ax.set_ylim(86, 100)
     ax.set_yticks([86, 88, 90, 92, 94, 96, 98, 100])
     ax.set_ylabel("mAP (%)", fontsize=10)
     ax.set_xticks(x)
     ax.set_xticklabels([""] * 4)
+    ax.set_xlim(-0.6, x[-1] + 0.6)
 
     # Value on top of each bar
     for xi, v in zip(x, vals):
@@ -215,25 +220,20 @@ def panel_c(ax, data):
                 fontsize=9,
                 color=COLORS["feral"] if xi == 0 else "black")
 
-    # Rotated labels (30°), anchored at the right edge so they fan
-    # diagonally below their bar. Italic citation is rendered as a
-    # SECOND line of the same annotation (newline separated) so the
-    # citation stays parallel to its label and can't overlap the next
-    # bar's main label.
     label_colors = [COLORS["feral"], "black", "black", "black"]
     trans = ax.get_xaxis_transform()
     for xi, lbl, sub, col in zip(x, labels, sublabels, label_colors):
-        ax.annotate(lbl, xy=(xi + 0.30, 0), xycoords=trans,
+        # Anchor at bar's right edge for ha="right" rotation. Both label
+        # and citation share the same x anchor so they line up.
+        anchor_x = xi + 0.35
+        ax.annotate(lbl, xy=(anchor_x, 0), xycoords=trans,
                     xytext=(0, -3), textcoords="offset points",
                     ha="right", va="top", rotation=30,
                     rotation_mode="anchor",
-                    fontsize=8, color=col, annotation_clip=False)
+                    fontsize=8.5, color=col, annotation_clip=False)
         if sub:
-            # Offset further along the rotated label's perpendicular so the
-            # citation sits a clear line below the main label without
-            # poking into the previous bar's text region.
-            ax.annotate(sub, xy=(xi + 0.30, 0), xycoords=trans,
-                        xytext=(-7, -16), textcoords="offset points",
+            ax.annotate(sub, xy=(anchor_x, 0), xycoords=trans,
+                        xytext=(0, -16), textcoords="offset points",
                         ha="right", va="top", rotation=30,
                         rotation_mode="anchor",
                         fontsize=6, fontstyle="italic",
@@ -393,9 +393,9 @@ def panel_f(ax, data):
                        color=COLORS["predicted"], zorder=3, linewidths=0)
 
     ax.set_xticks([0, 1, 2])
-    ax.set_xticklabels(["attack", "investigate", "mount"], fontsize=10,
-                       rotation=30, ha="right", rotation_mode="anchor",
-                       fontstyle="italic")
+    # Horizontal, non-italic labels (matches source). Each label is short
+    # enough that they don't overlap at the default 1.0 unit spacing.
+    ax.set_xticklabels(["attack", "investigate", "mount"], fontsize=10)
     for tl, b in zip(ax.get_xticklabels(), behaviors):
         tl.set_color(CLASS_COLORS[b])
     # Push the bottom slightly below 0 so the y=0 tick label sits above the
