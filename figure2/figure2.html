@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Figure 2 — CalMS21 mice</title>
+  <style>
+    /* The page is the figure canvas. 1 CSS px = 1 device px at scale 1.
+       Chrome's --force-device-scale-factor=3 in build.py rescales the
+       final raster to ~300 DPI without changing this layout.
+       To move a panel: edit the .panel CSS rule below. */
+    html, body { margin: 0; padding: 0; }
+    body {
+      width: 780px;
+      height: 820px;
+      background: white;
+      font-family: Arial, sans-serif;
+      position: relative;
+    }
+    .panel {
+      position: absolute;
+      /* outline: 1px dashed rgba(255,0,0,.25); /* turn on for debug */
+    }
+    .panel img { display: block; width: 100%; height: 100%; }
+
+    /* --- Layout grid ---------------------------------------------------
+       Row 1 (y=  0..310): panel a (x=  6..246) | panel b (x=246..796)
+       Row 2 (y=310..580): panel c (x=  0..212) | panel d (x=212..506) | panel e (x=506..796)
+       Row 3 (y=580..820): panel f (x=  0..262) | panel g (x=262..526) | panel h (x=526..776)
+       ------------------------------------------------------------------- */
+    /* Row 1 (y=0..300):     a [0..225]   b [225..780] */
+    /* Row 2 (y=300..585):   c [0..200]   d [200..490]   e [490..780] */
+    /* Row 3 (y=585..820):   f [0..255]   g [255..555]   h [555..780] */
+
+    #a { left:   0px; top:   0px; width: 225px; height: 300px; }
+    #b { left: 225px; top:   0px; width: 555px; height: 260px; }
+
+    #c { left:   0px; top: 310px; width: 200px; height: 260px; }
+    #d { left: 200px; top: 310px; width: 290px; height: 260px; }
+    #e { left: 490px; top: 295px; width: 290px; height: 280px; }
+
+    #f { left:   0px; top: 585px; width: 255px; height: 235px; }
+    #g { left: 255px; top: 585px; width: 300px; height: 235px; }
+    #h { left: 580px; top: 585px; width: 200px; height: 235px; }
+  </style>
+</head>
+<body>
+  <div class="panel" id="a"><img src="panels/a.svg" alt="panel a"></div>
+  <div class="panel" id="b"><img src="panels/b.svg" alt="panel b"></div>
+  <div class="panel" id="c"><img src="panels/c.svg" alt="panel c"></div>
+  <div class="panel" id="d"><img src="panels/d.svg" alt="panel d"></div>
+  <div class="panel" id="e"><img src="panels/e.svg" alt="panel e"></div>
+  <div class="panel" id="f"><img src="panels/f.svg" alt="panel f"></div>
+  <div class="panel" id="g"><img src="panels/g.svg" alt="panel g"></div>
+  <div class="panel" id="h"><img src="panels/h.svg" alt="panel h"></div>
+</body>
+</html>
