@@ -18,7 +18,15 @@
       position: absolute;
       /* outline: 1px dashed rgba(255,0,0,.25); */
     }
-    .panel img { display: block; width: 100%; height: 100%; }
+    .panel img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      /* tight-bbox SVG may not match the CSS slot exactly; preserve aspect
+         ratio rather than stretch. */
+      object-fit: contain;
+      object-position: center;
+    }
 
     /* Panel-letter overlays — drawn on top of each panel SVG so they
        can't be clipped by the SVG's tight bbox. Positioned inside the

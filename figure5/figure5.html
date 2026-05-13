@@ -17,7 +17,13 @@
       position: absolute;
       /* outline: 1px dashed rgba(255,0,0,.25); */
     }
-    .panel img { display: block; width: 100%; height: 100%; }
+    .panel img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+    }
 
     /* Panel-letter overlays — inside-panel positioning so they can't be
        clipped by the body's overflow:hidden when a panel sits at (0,0). */

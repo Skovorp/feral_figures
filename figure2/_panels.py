@@ -60,8 +60,15 @@ def _new_fig(name: str) -> plt.Figure:
 
 
 def _save_svg(fig: plt.Figure, name: str) -> str:
+    """Save SVG with bbox_inches='tight' so matplotlib auto-expands the
+    canvas to include EVERY artist (panel labels, rotated tick text,
+    citations, etc.) — nothing gets clipped at the SVG edge.
+
+    The HTML side uses `object-fit: contain` on the <img> so the SVG
+    keeps its aspect ratio when scaled to the CSS slot.
+    """
     out = os.path.join(PANELS_DIR, f"{name}.svg")
-    fig.savefig(out, format="svg", bbox_inches=None, pad_inches=0,
+    fig.savefig(out, format="svg", bbox_inches="tight", pad_inches=0.02,
                 facecolor="white")
     plt.close(fig)
     return out

@@ -62,8 +62,10 @@ def _new_fig(name: str) -> plt.Figure:
 
 
 def _save_svg(fig: plt.Figure, name: str) -> str:
+    """bbox_inches='tight' so labels/titles outside axes bounds aren't
+    clipped by the SVG canvas. CSS uses object-fit:contain to scale."""
     out = os.path.join(PANELS_DIR, f"{name}.svg")
-    fig.savefig(out, format="svg", bbox_inches=None, pad_inches=0,
+    fig.savefig(out, format="svg", bbox_inches="tight", pad_inches=0.02,
                 facecolor="white")
     plt.close(fig)
     return out
